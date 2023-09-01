@@ -11,6 +11,13 @@ const pool = new Pool({
   ssl: true,
 });
 
+pool
+  .connect()
+  .then(() => console.log("Success: Connected to the database"))
+  .catch((err) =>
+    console.error("Failure: Unable to connect to the database.\n", err)
+  );
+
 app.get("/", (req, res) => {});
 
 app.listen(port, () => {
