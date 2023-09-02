@@ -18,7 +18,9 @@ pool
     console.error("Failure: Unable to connect to the database.\n", err)
   );
 
-app.get("/", (req, res) => {});
+app.get("/", (req, res) => {
+  console.log();
+});
 
 app.listen(port, () => {
   console.log("Server running on port ${port}...");
