@@ -17,11 +17,8 @@ router.post("/new", (req, res) => {
 router.get("/id/:gameId", (req, res) => {
   const gameId = req.params.gameId;
 
-  console.log(`Querying game table for id ${gameId}`);
-
   GameTable.selectGame({ id: gameId })
     .then((requestedGame) => {
-      console.log(requestedGame);
       res.json({ game: new Game(requestedGame) });
     })
     .catch((err) => console.error(err));
@@ -29,10 +26,6 @@ router.get("/id/:gameId", (req, res) => {
 
 router.get("/pid/:playerId", (req, res) => {
   const playerId = req.params.playerId;
-
-  console.log(
-    `Querrying game table for any games involving player #${playerId}`
-  );
 
   GameTable.selectGame({ player: playerId })
     .then((requestedGames) => {

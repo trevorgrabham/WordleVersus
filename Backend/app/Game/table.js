@@ -15,8 +15,6 @@ class GameTable {
         [creationDatetime, p1id, p2id, winner],
         (err, res) => {
           if (err) return reject(err);
-          console.log("Successfully insert into game table");
-          console.log(res.rows[0]);
           resolve(res.rows[0]);
         }
       );
