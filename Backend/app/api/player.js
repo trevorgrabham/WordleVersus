@@ -19,4 +19,14 @@ router.post("/new", (req, res) => {
     .catch((err) => console.error(err));
 });
 
+router.get("/search/:partialString", (req, res) => {
+  const partialString = req.params.partialString;
+
+  PlayerTable.searchPlayersFromPartial(partialString)
+    .then((data) => {
+      res.json({ usernames: data });
+    })
+    .catch((err) => console.error(err));
+});
+
 module.exports = router;
