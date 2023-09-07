@@ -7,8 +7,3 @@ const pool = new Pool({
 });
 
 module.exports = pool;
-
-pool.query("Select * from player", (e, res) => {
-  if (e) return console.log(e);
-  console.log(res.rows);
-});
