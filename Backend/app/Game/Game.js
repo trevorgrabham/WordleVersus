@@ -1,18 +1,20 @@
 const DEFAULT = {
-  dateTime: () => {
+  id: null,
+  creationDatetime: () => {
     return new Date();
   },
-  p1: null,
-  p2: null,
+  p1id: null,
+  p2id: null,
   winner: null,
 };
 
 class Game {
-  constructor({ dateTime, p1, p2, winner }) {
-    this.dateTime = dateTime || DEFAULT.dateTime();
-    this.dateTime = this.dateTime.toISOString();
-    this.p1 = p1 || DEFAULT.p1;
-    this.p2 = p2 || DEFAULT.p2;
+  constructor({ id, creationDatetime, p1id, p2id, winner }) {
+    this.id = id || DEFAULT.id;
+    this.creationDatetime = creationDatetime || DEFAULT.creationDatetime();
+    this.creationDatetime = this.creationDatetime.toISOString();
+    this.p1id = p1id || DEFAULT.p1id;
+    this.p2id = p2id || DEFAULT.p2id;
     this.winner = winner || DEFAULT.winner;
   }
 }
