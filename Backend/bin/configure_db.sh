@@ -13,5 +13,6 @@ createdb -U tgrabham "$DB_NAME"
 
 psql -U tgrabham "$DB_NAME" < ./bin/sql/player.sql
 psql -U tgrabham "$DB_NAME" < ./bin/sql/game.sql
+psql -U tgrabham "$DB_NAME" < ./bin/sql/gamestat.sql
 
 echo "$DB_NAME configured"
