@@ -1,29 +1,36 @@
 const pool = require("../../databasePool");
 
+/**
+ * A collection of functions for interacting with the gamestat table
+ * @class
+ */
 class GameStatTable {
-  static insertGameStat({
+  /**
+   *
+   * @param {int} gameId - REQUIRED
+   * @param {int} playerId - REQUIRED
+   * @param {int} numCorrectWordsGuessed - REQUIRED
+   * @param {int} numGuessesTotal - REQUIRED
+   * @throws {Error} Throws and error if a parameter is not defined or if unable to insert entry into the table
+   * @returns {Object} Returns the entry that was just entered into the table on success
+   */
+  static async insertGameStat({
     gameId,
     playerId,
     numCorrectWordsGuessed,
     numGuessesTotal,
   }) {
-    return new Promise((resolve, reject) => {
-      if (gameId === undefined) reject(new Error("Missing field: gameId"));
-      if (playerId === undefined) reject(new Error("Missing field: playerId"));
-      if (numCorrectWordsGuessed === undefined)
-        reject(new Error("Missing field: numCorrectWordsGuessed"));
-      if (numGuessesTotal === undefined)
-        reject(new Error("Missing field: numGuessesTotal"));
+    if (!gameId) new Error("Missing field: gameId");
+    if (!playerId) new Error("Missing field: playerId");
+    if (!numCorrectWordsGuessed)
+      new Error("Missing field: numCorrectWordsGuessed");
+    if (!numGuessesTotal) new Error("Missing field: numGuessesTotal");
 
-      pool.query(
-        "INSERT INTO gamestat VALUES($1, $2, $3, $4) RETURNING *",
-        [gameId, playerId, numCorrectWordsGuessed, numGuessesTotal],
-        (err, res) => {
-          if (err) return reject(err);
-          resolve(res.rows[0]);
-        }
-      );
-    });
+    let result = await pool.query(
+      "INSERT INTO gamestat VALUES($1, $2, $3, $4) RETURNING *",
+      [gameId, playerId, numCorrectWordsGuessed, numGuessesTotal]
+    );
+    return result.rows[0];
   }
 }
 
