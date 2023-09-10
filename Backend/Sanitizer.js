@@ -34,7 +34,7 @@ class Sanitizer {
   }
 
   /**
-   * Returns a list of problems encountered. Returns null if isValid() is true. See {@link Sanitizer#isValid}
+   * Returns a list of problems encountered. Returns null if isValid() is true. See {@link Sanitizer.isValid}
    * @returns {Array<string>} Descriptions of any failed validations/sanitizatins so far. Empty array if the string is clean.
    */
   checkErrors() {
@@ -42,7 +42,7 @@ class Sanitizer {
   }
 
   /**
-   * Sanitizes the input string of any html tags present in it. Can check results with {@link Sanitizer#isValid}
+   * Sanitizes the input string of any html tags present in it. Can check results with {@link Sanitizer.isValid}
    * @returns {this} - Allows for chaining of sanitizations/validations
    */
   sanitize() {
@@ -60,7 +60,7 @@ class Sanitizer {
   }
 
   /**
-   * Validates that the user string is a valid email address. Can check results with {@link Sanitizer#isValid}
+   * Validates that the user string is a valid email address. Can check results with {@link Sanitizer.isValid}
    * @returns {this} - Allows for chaining of sanitizations/validations
    */
   validateEmail() {
@@ -76,7 +76,7 @@ class Sanitizer {
   }
 
   /**
-   * Validates that the user string is a valid integer. Can check results with {@link Sanitizer#isValid}
+   * Validates that the user string is a valid integer. Can check results with {@link Sanitizer.isValid}
    * @returns {this} - Allows for chaining of sanitizations/validations
    */
   validateInt() {
@@ -92,7 +92,7 @@ class Sanitizer {
   }
 
   /**
-   * Validats that the user string is a valid float. Will not fail in the case where an integer is supplied. Can check results with {@link Sanitizer#isValid}
+   * Validats that the user string is a valid float. Will not fail in the case where an integer is supplied. Can check results with {@link Sanitizer.isValid}
    * @returns {this} - Allows for chaining of sanitizations/validations
    */
   validateFloat() {

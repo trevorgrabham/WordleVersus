@@ -13,6 +13,10 @@ class GameStat {
       numCorrectWordsGuessed || DEFAULT.numCorrectWordsGuessed;
     this.numGuessesTotal = numGuessesTotal || DEFAULT.numGuessesTotal;
   }
+
+  toString() {
+    return `GameStat for player #${this.playerId} and game #${this.gameId}:\t${this.numCorrectWordsGuessed} words guessed from ${this.numGuessesTotal} guesses`;
+  }
 }
 
 module.exports = GameStat;

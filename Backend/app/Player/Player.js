@@ -10,6 +10,10 @@ class User {
     this.username = username || DEFAULT.username;
     this.email = email || DEFAULT.email;
   }
+
+  toString() {
+    return `User(${this.username}, ${this.email})`;
+  }
 }
 
 module.exports = User;

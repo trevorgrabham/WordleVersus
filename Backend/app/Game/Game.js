@@ -17,6 +17,12 @@ class Game {
     this.p2id = p2id || DEFAULT.p2id;
     this.winner = winner || DEFAULT.winner;
   }
+
+  toString() {
+    return `Game #${this.id} @ ${this.creationDatetime}:\t${this.winner} beat ${
+      this.winner === this.p1id ? this.p2id : this.p1id
+    }`;
+  }
 }
 
 module.exports = Game;
