@@ -37,7 +37,6 @@ class PlayerTable {
       'INSERT INTO player ("username", "email") VALUES($1, $2) RETURNING *',
       [username, email]
     );
-    console.log(insertResponse);
     responseObject.data = insertResponse.rows[0];
     return responseObject;
   }

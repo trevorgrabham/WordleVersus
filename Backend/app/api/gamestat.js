@@ -2,21 +2,40 @@ const { Router } = require("express");
 const GameStat = require("../GameStat/GameStat");
 const GameStatTable = require("../GameStat/table");
 const Sanitizer = require("../../Sanitizer");
+const logger = require("../../Logs/logger");
+const { insertGame } = require("../Game/table");
 
 const router = new Router();
 
-router.post("/new", (req, res) => {
+router.post("/new", (req, res, next) => {
   const data = req.body;
 
+  let dataString = Object.keys(data)
+    .map((key) => `${key}: ${data[key]}`)
+    .join(", ");
+
+  logger.info(`POST request to GameStat table with data (${dataString})`);
+
   const errors = sanitizeNewRoute(data);
-  if (errors) return res.send(errors);
+  if (errors) {
+    let errorString = errors.join("\t");
+    logger.error(
+      `User data error from GameStatRouter/new endpoint: ${errorString}`
+    );
+    return next(new Error(errorString));
+  }
 
   GameStatTable.insertGameStat(data)
-    .then((enteredGameStat) => {
-      return res.json({ gameStat: new GameStat(enteredGameStat) });
+    .then((insertedRow) => {
+      const insertedGameStat = new GameStat(insertedRow);
+      logger.info(`Successful INSERT for GameStat ${insertedGameStat}`);
+      return res.json({ gameStat: insertedGameStat });
     })
     .catch((err) => {
-      console.error(err);
+      logger.error(
+        `Error INSERT into GameStat table unsuccessful using (${dataString}).`
+      );
+      next(err);
     });
 });
 

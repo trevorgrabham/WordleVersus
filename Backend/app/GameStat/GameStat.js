@@ -15,7 +15,7 @@ class GameStat {
   }
 
   toString() {
-    return `GameStat for player #${this.playerId} and game #${this.gameId}:\t${this.numCorrectWordsGuessed} words guessed from ${this.numGuessesTotal} guesses`;
+    return `GameStat for player #${this.playerId} and game #${this.gameId}:\t${this.numCorrectWordsGuessed} words guessed using ${this.numGuessesTotal} guesses`;
   }
 }
 
