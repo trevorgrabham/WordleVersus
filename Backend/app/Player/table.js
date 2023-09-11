@@ -1,4 +1,8 @@
+const { response } = require("express");
 const pool = require("../../databasePool");
+const bcrypt = require("bcrypt");
+
+const saltRounds = 10;
 
 /**
  * A collection of functions for interacting with the player table
@@ -6,16 +10,15 @@ const pool = require("../../databasePool");
  */
 class PlayerTable {
   /**
-   *
-   * @param {sting} username - REQUIRED
-   * @param {sting} email - REQUIRED
+   * @param {string} username - REQUIRED
+   * @param {string} email - REQUIRED
    * @throws {Error} Throws an error if a parameter is undefined or if unable to insert player into the table
    * @returns {Object} Returns the inserted player on success. The player will now have an id set for them
    */
-  static async insertPlayer({ username, email }) {
-    if (username === undefined)
-      return new Error("username field must be provided");
-    if (email === undefined) return new Error("email field must be provided");
+  static async insertPlayer({ username, email, password }) {
+    if (!username) return new Error("username field must be provided");
+    if (!email) return new Error("email field must be provided");
+    if (!password) return new Error("password field must be provided");
 
     let availabilityCheckResponse = await pool.query(
       "SELECT username, email FROM player WHERE username=$1 OR email=$2",
@@ -33,12 +36,49 @@ class PlayerTable {
     };
     if (emailTaken || usernameTaken) return responseObject;
 
+    const passwordHash = await bcrypt.hash(password, saltRounds);
     let insertResponse = await pool.query(
-      'INSERT INTO player ("username", "email") VALUES($1, $2) RETURNING *',
-      [username, email]
+      'INSERT INTO player ("username", "email", "password") VALUES($1, $2, $3) RETURNING *',
+      [username, email, passwordHash]
     );
     responseObject.data = insertResponse.rows[0];
     return responseObject;
+  }
+
+  /**
+   *
+   * Only needs one of username, or email.
+   * @param {string} Password - REQUIRED. Unhashed password to compare against the hashed password in the database
+   * @param {username} username - username to find the user in the database
+   * @param {email} email - email to find the user in the database
+   *
+   */
+  static async comparePassword({ username, email, password }) {
+    if (!password) return new Error("Password is a required field");
+    if (!username && !email)
+      return new Error("One of username or email is required");
+    let playerData;
+    if (username) {
+      playerData = await pool.query("SELECT * FROM player WHERE username=$1", [
+        username,
+      ]);
+    } else {
+      playerData = await pool.query("SELECT * FROM player WHERE email=$1", [
+        email,
+      ]);
+    }
+    playerData = playerData.rows[0];
+    let validPassword = await bcrypt.compare(password, playerData.password);
+    if (validPassword)
+      return {
+        validPassword,
+        data: {
+          playerId: playerData.playerId,
+          username: playerData.username,
+          email: playerData.email,
+        },
+      };
+    return { validPassword, data: null };
   }
 
   /**

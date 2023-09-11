@@ -1,18 +1,20 @@
 const DEFAULT = {
-  id: null,
+  playerId: null,
   username: null,
   email: null,
+  password: null,
 };
 
 class Player {
-  constructor({ id, username, email } = {}) {
-    this.id = id || DEFAULT.id;
+  constructor({ playerId, username, email, password } = {}) {
+    this.playerId = playerId || DEFAULT.playerId;
     this.username = username || DEFAULT.username;
     this.email = email || DEFAULT.email;
+    this.password = password || DEFAULT.password;
   }
 
   toString() {
-    return `Player(${this.username}, ${this.email})`;
+    return `Player(${this.playerId}: ${this.username}, ${this.email})`;
   }
 }
 
