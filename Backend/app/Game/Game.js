@@ -19,9 +19,9 @@ class Game {
   }
 
   toString() {
-    return `Game #${this.id} @ ${this.creationDatetime}:\t${this.winner} beat ${
-      this.winner === this.p1id ? this.p2id : this.p1id
-    }`;
+    return `Game #${this.id} @ ${this.creationDatetime}:\tPlayer ${
+      this.winner
+    } beat Player ${this.winner === this.p1id ? this.p2id : this.p1id}`;
   }
 }
 
