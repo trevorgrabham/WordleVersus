@@ -12,13 +12,13 @@ router.post("/new", (req, res, next) => {
     .map((key) => `${key}: ${data[key]}`)
     .join(", ");
 
-  logger.info(`POST request with data (${dataString})`);
+  logger.info(`POST request to GameRouter/new with data (${dataString})`);
 
   const errors = sanitizeNewRoute(data);
   if (errors) {
     let errorString = errors.join("\t");
     logger.error(
-      `User data error from /new GameRouter endpoint: ${errorString}`
+      `User data error from GameRouter/new endpoint: ${errorString}`
     );
     return next(new Error(errorString));
   }
@@ -31,7 +31,7 @@ router.post("/new", (req, res, next) => {
     })
     .catch((err) => {
       logger.error(
-        `Error INSERT unsuccessful using (${dataString}). ${err.message}`
+        `Error INSERT into Game table unsuccessful using (${dataString}). ${err.message}`
       );
       next(err);
     });
@@ -45,14 +45,18 @@ router.get("/id/:gameId", (req, res, next) => {
   const errors = sanitizeGameId(gameId);
   if (errors) {
     let errorString = errors.join("\t");
-    logger.error(`Error with gameId: ${gameId}`);
+    logger.error(
+      `Error with GET request from Game tablue using gameId: ${gameId}`
+    );
     return next(new Error(errorString));
   }
 
   GameTable.selectGame({ id: gameId })
     .then((requestedRow) => {
       if (!requestedRow) {
-        logger.info(`SELECT returned empty for gameId: ${gameId}`);
+        logger.info(
+          `SELECT returned empty from Game table for gameId: ${gameId}`
+        );
         return res.json({ game: null });
       }
       const requestedGame = new Game(requestedRow);
@@ -60,7 +64,7 @@ router.get("/id/:gameId", (req, res, next) => {
       res.json({ game: requestedGame });
     })
     .catch((err) => {
-      logger.error(`Error during SELECT query. ${err.message}`);
+      logger.error(`Error during SELECT query on Game table. ${err.message}`);
       next(err);
     });
 });
