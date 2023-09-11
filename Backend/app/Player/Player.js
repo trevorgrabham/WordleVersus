@@ -4,7 +4,7 @@ const DEFAULT = {
   email: null,
 };
 
-class User {
+class Player {
   constructor({ id, username, email } = {}) {
     this.id = id || DEFAULT.id;
     this.username = username || DEFAULT.username;
@@ -12,8 +12,8 @@ class User {
   }
 
   toString() {
-    return `User(${this.username}, ${this.email})`;
+    return `Player(${this.username}, ${this.email})`;
   }
 }
 
-module.exports = User;
+module.exports = Player;

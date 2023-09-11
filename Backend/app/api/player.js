@@ -34,7 +34,7 @@ router.post("/new", (req, res, next) => {
 
       const insertedPlayer = new Player(responseObject.data);
       logger.info(`Successful INSERT for Player ${insertedPlayer}`);
-      res.json({ user: insertedPlayer });
+      res.json({ player: insertedPlayer });
     })
     .catch((err) => {
       logger.error(
