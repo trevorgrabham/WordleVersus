@@ -52,7 +52,7 @@ class Sanitizer {
 
   _sanitizeHtml() {
     if (this.inputString.match(htmlRegex)) {
-      this.problem.push("Html sanitization failed.\nThis string contains html");
+      this.problem.push("Html sanitization failed. This string contains html.");
       this.clean = false;
       return;
     }
@@ -70,7 +70,7 @@ class Sanitizer {
     }
     this.clean = false;
     this.problem.push(
-      "Email validation failed.\nThis string does not contain a valid email address"
+      "Email validation failed. This string does not contain a valid email address."
     );
     return this;
   }
@@ -86,7 +86,7 @@ class Sanitizer {
     }
     this.clean = false;
     this.problem.push(
-      "Int validation failed.\nThis string contains non-digit characters"
+      "Int validation failed. This string contains non-digit characters."
     );
     return this;
   }
