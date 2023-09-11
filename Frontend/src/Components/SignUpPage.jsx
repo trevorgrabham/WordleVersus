@@ -12,8 +12,8 @@ function SignUpPage() {
     confirmPassword: '',
   });
 
-  const updatePlayerStore = ({ id, username, email }) => {
-    setPlayerId(id);
+  const updatePlayerStore = ({ playerId, username, email }) => {
+    setPlayerId(playerId);
     setUsername(username);
     setEmail(email);
   };
@@ -38,11 +38,13 @@ function SignUpPage() {
       return;
     }
     try {
-      const response = await axios.post('http://127.0.0.1:8000/player/new', {
+      const response = await axios.post('http://127.0.0.1:8000/player/signup', {
         username: formData.username,
         email: formData.email,
+        password: formData.password,
       });
-      setError(() => '');
+      setError(() => (response.data.error ? response.data.errorMessage : ''));
+      if (response.data.error) return;
       setFormData(() => defaultFormData());
       updatePlayerStore(response.data.player);
     } catch (error) {
