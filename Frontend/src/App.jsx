@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import HomePage from './Components/HomePage';
-import SignUpPage from './Components/SignUpPage';
+import GamePage from './Pages/GamePage';
+import useGameSettingStore from './stores/gameSettingStore';
 
 function App() {
-  return (
-    <div>
-      <SignUpPage />
-      <HomePage />
-    </div>
-  );
+  const { wordleLength, setGameType, setWordleLength } = useGameSettingStore();
+
+  useEffect(() => {
+    setGameType('normal');
+    setWordleLength(5);
+  }, []);
+
+  return <div>{wordleLength && <GamePage />}</div>;
 }
 
 export default App;
