@@ -15,11 +15,11 @@ class GameTable {
    * @returns {object} Returns an object of the Game that was just inserted into the table. The id field for the game will now be filled out
    */
   static async insertGame({ creationDatetime, p1id, p2id, winner }) {
-    if (creationDatetime === undefined) creationDatetime = new Date();
+    if (!creationDatetime) creationDatetime = new Date();
 
-    if (p1id === undefined) return new Error("Missing field: p1id");
-    if (p2id === undefined) return new Error("Missing field: p2id");
-    if (winner === undefined) return new Error("Missing field: winner");
+    if (!p1id) return Promise.reject("Missing field: p1id");
+    if (!p2id) return Promise.reject("Missing field: p2id");
+    if (!winner) return Promise.reject("Missing field: winner");
 
     let response = await pool.query(
       'INSERT INTO game ("creationDatetime", "p1id", "p2id", winner) VALUES($1, $2, $3, $4) RETURNING *',
@@ -37,10 +37,11 @@ class GameTable {
    * @returns {Object | Array<Object>} If id, then returns the game with a matching id. If player then returns a list of all games that the player with the corresponding id is involved.
    */
   static async selectGame({ id, player }) {
-    if (!id && !player) return new Error("Must define one of id or player");
+    if (!id && !player)
+      return Promise.reject("Must define one of id or player");
 
     if (id && player)
-      return new Error(
+      return Promise.reject(
         "This function was not meant to take multiple paramerters"
       );
 

@@ -1,12 +1,13 @@
 const { Router } = require("express");
-const Player = require("../Player/Player");
 const PlayerTable = require("../Player/table");
 const Sanitizer = require("../../Sanitizer");
 const logger = require("../../Logs/logger");
 
 const router = new Router();
 
-router.post("/signup", (req, res, next) => {
+// Returns {error: true, message, target} on failure
+// Returns {error: false, player} on success
+router.post("/signup", (req, res) => {
   const data = req.body;
   let dataString = Object.keys(data)
     .map((key) => `${key}: ${data[key]}`)
@@ -18,7 +19,11 @@ router.post("/signup", (req, res, next) => {
   if (errors) {
     let errorString = errors.join("\t");
     logger.error(`User data error from Player/signup endpoint: ${errorString}`);
-    return next(new Error(errorString));
+    return res.json({
+      error: true,
+      message: errorString,
+      target: "/player/signup",
+    });
   }
 
   PlayerTable.insertPlayer(data)
@@ -27,30 +32,41 @@ router.post("/signup", (req, res, next) => {
         logger.info(`Email ${data.email} is already registered.`);
         return res.json({
           error: true,
-          errorMessage: `Email ${data.email} is already registered. Try signing in`,
+          message: `Email ${data.email} is already registered. Try signing in`,
+          target: "/player/signup",
         });
       }
       if (responseObject.usernameTaken) {
         logger.info(`Username ${data.username} is already taken.`);
         return res.json({
           error: true,
-          errorMessge: `Username ${data.username} is already taken. Please try again`,
+          message: `Username ${data.username} is already taken. Please try again`,
+          target: "/player/signup",
         });
       }
 
-      const insertedPlayer = new Player(responseObject.data);
-      logger.info(`Successful INSERT for Player ${insertedPlayer}`);
-      res.json({ error: false, player: insertedPlayer });
+      logger.info(
+        `Successful INSERT for Player (${Object.keys(responseObject.data).map(
+          (key) => `${key}:${responseObject.data[key]}`
+        )})`
+      );
+      res.json({ error: false, player: responseObject.data });
     })
     .catch((err) => {
       logger.error(
         `Error INSERT into Player table unsuccessful using (${dataString})`
       );
-      next(err);
+      return res.json({
+        error: true,
+        message: err.message,
+        target: "/player/signup",
+      });
     });
 });
 
-router.post("/login", (req, res, next) => {
+// Returns {error: true, message, target} on failure
+// Returns {error: false, player} on success
+router.post("/login", (req, res) => {
   const data = req.body;
   let dataString = Object.keys(data)
     .map((key) => `${key}: ${data[key]}`)
@@ -62,7 +78,11 @@ router.post("/login", (req, res, next) => {
   if (errors) {
     let errorString = errors.join("\t");
     logger.error(`User data error from Player/login endpoint: ${errorString}`);
-    return next(new Error(errorString));
+    return res.json({
+      error: true,
+      message: errorString,
+      target: "/player/login",
+    });
   }
 
   PlayerTable.comparePassword(data)
@@ -77,7 +97,8 @@ router.post("/login", (req, res, next) => {
         );
         return res.json({
           error: true,
-          errorMessage: "No matching username/email",
+          message: "No matching username/email",
+          target: "/player/login",
         });
       }
 
@@ -85,7 +106,8 @@ router.post("/login", (req, res, next) => {
         logger.info(`${data.password} was incorrect`);
         return res.json({
           error: true,
-          errorMessage: "Incorrect password",
+          message: "Incorrect password",
+          target: "/player/login",
         });
       }
 
@@ -94,15 +116,21 @@ router.post("/login", (req, res, next) => {
       );
       return res.json({
         error: false,
-        player: new Player(responseObject.data),
+        player: responseObject.data,
       });
     })
     .catch((e) => {
-      return next(e);
+      return res.json({
+        error: true,
+        message: e.message,
+        target: "/player/login",
+      });
     });
 });
 
-router.get("/search/:partialString", (req, res, next) => {
+// Returns {error: true, message, target} on failure
+// Returns {error: false, [players]} on success
+router.get("/search/:partialString", (req, res) => {
   const partialString = req.params.partialString;
 
   logger.info(`GET request to Player/search with data ${partialString}`);
@@ -111,7 +139,11 @@ router.get("/search/:partialString", (req, res, next) => {
   if (errors) {
     let errorString = errors.join("\t");
     logger.error(`User data error from Player/search endpoint: ${errorString}`);
-    return next(new Error(errorString));
+    return res.json({
+      error: true,
+      message: errorString,
+      target: "/player/search",
+    });
   }
 
   PlayerTable.searchPlayersFromPartial(partialString)
@@ -120,13 +152,17 @@ router.get("/search/:partialString", (req, res, next) => {
       logger.info(
         `Successful Player table query. Found matches [${matchingString}]`
       );
-      res.json({ usernames: matchingRows });
+      res.json({ error: false, players: matchingRows });
     })
     .catch((err) => {
       logger.error(
         `Unsuccessful query to Player table using partialString: ${partialString}`
       );
-      next(err);
+      return res.json({
+        error: true,
+        message: err.message,
+        target: "/player/search",
+      });
     });
 });
 
@@ -136,26 +172,45 @@ function sanitizeSignupRoute(data) {
   try {
     const usernameSanitizer = new Sanitizer(data.username).sanitize();
     if (!usernameSanitizer.isValid()) return usernameSanitizer.checkErrors();
-
+  } catch (e) {
+    return [`username not provided`];
+  }
+  try {
     const emailSanitizer = new Sanitizer(data.email).sanitize().validateEmail();
     if (!emailSanitizer.isValid()) return emailSanitizer.checkErrors();
   } catch (e) {
-    return e.message;
+    return [`email not provided`];
+  }
+  try {
+    const passwordSanitizer = new Sanitizer(data.password).sanitize();
+    if (!passwordSanitizer.isValid()) return passwordSanitizer.checkErrors();
+  } catch (e) {
+    return [`password not provided`];
   }
   return;
 }
 
-function sanitizeLoginRoute({ username, email }) {
+function sanitizeLoginRoute({ username, email, password }) {
   try {
-    if (username) {
+    const passwordSanitizer = new Sanitizer(password).sanitize();
+    if (!passwordSanitizer.isValid()) return passwordSanitizer.checkErrors();
+  } catch (e) {
+    return [`password not provided`];
+  }
+  if (username) {
+    try {
       const usernameSanitizer = new Sanitizer(username).sanitize();
       if (!usernameSanitizer.isValid()) return usernameSanitizer.checkErrors();
-    } else {
+    } catch (e) {
+      return [`username not provided`];
+    }
+  } else {
+    try {
       const emailSanitizer = new Sanitizer(email).sanitize().validateEmail();
       if (!emailSanitizer.isValid()) return emailSanitizer.checkErrors();
+    } catch (e) {
+      return [`email not provided`];
     }
-  } catch (e) {
-    return e.message;
   }
   return;
 }
@@ -166,7 +221,7 @@ function sanitizePartialString(partialString) {
     if (!partialStringSanitizer.isValid())
       return partialStringSanitizer.checkErrors();
   } catch (e) {
-    return e.message;
+    return [`partialString not provided`];
   }
   return;
 }

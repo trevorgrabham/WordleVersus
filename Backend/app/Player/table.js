@@ -12,13 +12,12 @@ class PlayerTable {
   /**
    * @param {string} username - REQUIRED
    * @param {string} email - REQUIRED
-   * @throws {Error} Throws an error if a parameter is undefined or if unable to insert player into the table
    * @returns {Object} Returns the inserted player on success. The player will now have an id set for them
    */
   static async insertPlayer({ username, email, password }) {
-    if (!username) return new Error("username field must be provided");
-    if (!email) return new Error("email field must be provided");
-    if (!password) return new Error("password field must be provided");
+    if (!username) return Promise.reject("username field must be provided");
+    if (!email) return Promise.reject("email field must be provided");
+    if (!password) return Promise.reject("password field must be provided");
 
     let availabilityCheckResponse = await pool.query(
       "SELECT username, email FROM player WHERE username=$1 OR email=$2",
@@ -54,9 +53,9 @@ class PlayerTable {
    *
    */
   static async comparePassword({ username, email, password }) {
-    if (!password) return new Error("Password is a required field");
+    if (!password) return Promise.reject("Password is a required field");
     if (!username && !email)
-      return new Error("One of username or email is required");
+      return Promise.reject("One of username or email is required");
     let playerData;
     if (username) {
       playerData = await pool.query("SELECT * FROM player WHERE username=$1", [
@@ -88,7 +87,8 @@ class PlayerTable {
    * @returns {Array<Object>} Returns an array of objects that match the string. The objects only have a 'username' field
    */
   static async searchPlayersFromPartial(partialString) {
-    if (!partialString) return new Error("Partial string should not be empty");
+    if (!partialString)
+      return Promise.reject("Partial string should not be empty");
 
     let autoCompleteResponse = await pool.query(
       "SELECT username FROM player WHERE username LIKE $1",

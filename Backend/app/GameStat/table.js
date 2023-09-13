@@ -20,11 +20,11 @@ class GameStatTable {
     numCorrectWordsGuessed,
     numGuessesTotal,
   }) {
-    if (!gameId) new Error("Missing field: gameId");
-    if (!playerId) new Error("Missing field: playerId");
+    if (!gameId) Promise.reject("Missing field: gameId");
+    if (!playerId) Promise.reject("Missing field: playerId");
     if (!numCorrectWordsGuessed)
-      new Error("Missing field: numCorrectWordsGuessed");
-    if (!numGuessesTotal) new Error("Missing field: numGuessesTotal");
+      Promise.reject("Missing field: numCorrectWordsGuessed");
+    if (!numGuessesTotal) Promise.reject("Missing field: numGuessesTotal");
 
     let result = await pool.query(
       "INSERT INTO gamestat VALUES($1, $2, $3, $4) RETURNING *",

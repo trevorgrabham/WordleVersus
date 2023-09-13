@@ -1,13 +1,13 @@
 const { Router } = require("express");
-const GameStat = require("../GameStat/GameStat");
 const GameStatTable = require("../GameStat/table");
 const Sanitizer = require("../../Sanitizer");
 const logger = require("../../Logs/logger");
-const { insertGame } = require("../Game/table");
 
 const router = new Router();
 
-router.post("/new", (req, res, next) => {
+// Returns {error: true, message, target} on failure
+// Returns {error: false, gameStat} on success
+router.post("/new", (req, res) => {
   const data = req.body;
 
   let dataString = Object.keys(data)
@@ -22,20 +22,31 @@ router.post("/new", (req, res, next) => {
     logger.error(
       `User data error from GameStatRouter/new endpoint: ${errorString}`
     );
-    return next(new Error(errorString));
+    return res.json({
+      error: true,
+      message: errorString,
+      target: "/gamestat/new",
+    });
   }
 
   GameStatTable.insertGameStat(data)
     .then((insertedRow) => {
-      const insertedGameStat = new GameStat(insertedRow);
-      logger.info(`Successful INSERT for GameStat ${insertedGameStat}`);
-      return res.json({ gameStat: insertedGameStat });
+      logger.info(
+        `Successful INSERT for GameStat (${Object.keys(insertedRow).map(
+          (key) => `${key}:${insertedRow[key]}`
+        )})`
+      );
+      return res.json({ error: false, gameStat: insertedRow });
     })
     .catch((err) => {
       logger.error(
         `Error INSERT into GameStat table unsuccessful using (${dataString}).`
       );
-      next(err);
+      return res.json({
+        error: true,
+        message: err.message,
+        target: "/gamestat/new",
+      });
     });
 });
 
@@ -45,12 +56,18 @@ function sanitizeNewRoute(data) {
   try {
     const gameIdSanitizer = new Sanitizer(data.gameId).sanitize().validateInt();
     if (!gameIdSanitizer.isValid()) return gameIdSanitizer.checkErrors();
-
+  } catch (e) {
+    return [`gameId not provided`];
+  }
+  try {
     const playerIdSanitizer = new Sanitizer(data.playerId)
       .sanitize()
       .validateInt();
     if (!playerIdSanitizer.isValid()) return playerIdSanitizer.checkErrors();
-
+  } catch (e) {
+    return [`playerId not provided`];
+  }
+  try {
     const numCorrectWordsGuessedSanitizer = new Sanitizer(
       data.numCorrectWordsGuessed
     )
@@ -58,14 +75,17 @@ function sanitizeNewRoute(data) {
       .validateInt();
     if (!numCorrectWordsGuessedSanitizer.isValid())
       return numCorrectWordsGuessedSanitizer.checkErrors();
-
+  } catch (e) {
+    return ["numCorrectWordsGuessed not provided"];
+  }
+  try {
     const numGuessesTotalSanitizer = new Sanitizer(data.numGuessesTotal)
       .sanitize()
       .validateInt();
     if (!numGuessesTotalSanitizer.isValid())
       return numGuessesTotalSanitizer.checkErrors();
   } catch (e) {
-    return e.message;
+    return ["numGuessesTotal not provided"];
   }
   return;
 }
