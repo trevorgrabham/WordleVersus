@@ -3,67 +3,56 @@ import axios from 'axios';
 import usePlayerStore from '../stores/playerStore';
 import Error from '../Components/Error';
 
-const defaultFormData = () => ({
-  username: '',
-  email: '',
+const emptyFormData = () => ({
+  identifier: '',
   password: '',
-  confirmPassword: '',
 });
-
 const emptyError = () => ({
   message: '',
   target: undefined,
 });
 
-function SignUpPage() {
+function LoginPage() {
   const { setPlayer } = usePlayerStore();
-  const [formData, setFormData] = useState(defaultFormData());
-
   const [error, setError] = useState(emptyError());
+  const [formData, setFormData] = useState(emptyFormData());
 
-  useEffect(() => {
-    setError({ message: `Only for debugging`, target: 'global' });
-  }, []);
-
-  const handleChange = (event) => {
+  const handleInputChange = (event) => {
     const { name, value } = event.target;
-
-    setFormData((previousData) => ({
-      ...previousData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
     }));
   };
 
-  const handleSubmit = async (event) => {
+  async function handleSubmit(event) {
     event.preventDefault();
-    // Check that passwords match
-    if (formData.password !== formData.confirmPassword) {
-      setError({
-        message: 'Password and confirm password do not match',
-        target: 'confirmPassword',
-      });
-      return;
-    }
-    // Check that all required fields are supplied
+    // Check that all required fields are provided
     let keys = Object.keys(formData);
     for (var i = 0; i < keys.length; ++i) {
       if (!formData[keys[i]]) {
         setError({
-          message: `${keys[i]} is a required field`,
+          message: `${
+            keys[i] === 'identifier' ? 'Username or Email' : keys[i]
+          } is a required field`,
           target: keys[i],
         });
         return;
       }
     }
-    // POST request
+    let requestObject = {
+      password: formData.password,
+    };
+    // Parse identifier as an email or username
+    if (formData.identifier.includes('@'))
+      requestObject['email'] = formData.identifier;
+    else requestObject['username'] = formData.identifier;
+    // GET request
     try {
-      const response = await axios.post('http://127.0.0.1:8000/player/signup', {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      });
-      // If error occured, report it
-      // Else clear errors
+      let response = await axios.post(
+        'http://127.0.0.1:8000/player/login',
+        requestObject,
+      );
       setError(
         response.data.error
           ? {
@@ -73,13 +62,12 @@ function SignUpPage() {
           : emptyError(),
       );
       if (response.data.error) return;
-      // Clear form and update playerStore
-      setFormData(defaultFormData());
       setPlayer(response.data.player);
-    } catch (error) {
-      setError({ message: error.message, target: 'global' });
+      setFormData(emptyFormData());
+    } catch (e) {
+      setError({ message: e.message, target: 'global' });
     }
-  };
+  }
 
   return (
     <div style={mainContainerStyle}>
@@ -90,24 +78,14 @@ function SignUpPage() {
             <input
               style={inputStyle}
               type="text"
-              name="username"
-              placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
+              name="identifier"
+              placeholder="Username or Email"
+              value={formData.identifier}
+              onChange={handleInputChange}
             />
-            {error.target === 'username' && (
+            {error.target === 'identifier' && (
               <Error fontSize={12}>{error.message}</Error>
             )}
-          </div>
-          <div style={inputFieldContainerStyle}>
-            <input
-              style={inputStyle}
-              type="text"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-            />
           </div>
           <div style={inputFieldContainerStyle}>
             <input
@@ -116,21 +94,14 @@ function SignUpPage() {
               name="password"
               placeholder="Password"
               value={formData.password}
-              onChange={handleChange}
+              onChange={handleInputChange}
             />
-          </div>
-          <div style={inputFieldContainerStyle}>
-            <input
-              style={inputStyle}
-              type="password"
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
+            {error.target === 'password' && (
+              <Error fontSize={12}>{error.message}</Error>
+            )}
           </div>
           <button style={formButtonStyle} type="submit">
-            Sign Up
+            Log In
           </button>
         </div>
       </form>
@@ -138,7 +109,7 @@ function SignUpPage() {
   );
 }
 
-export default SignUpPage;
+export default LoginPage;
 
 const mainContainerStyle = {
   width: '100vw',
@@ -163,7 +134,7 @@ const inputFieldContainerStyle = {
   width: '50%',
   margin: '12px',
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'column',
 };
 
 const inputStyle = { flex: '1' };

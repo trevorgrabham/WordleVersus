@@ -67,18 +67,12 @@ router.post("/login", (req, res, next) => {
 
   PlayerTable.comparePassword(data)
     .then((responseObject) => {
-      if (!responseObject.validPassword) {
-        logger.info(`${data.password} was incorrect`);
-        return res.json({
-          error: true,
-          errorMessage: "Incorrect password",
-        });
-      }
-
-      if (responseObject.data.length === 0) {
+      if (responseObject.data && responseObject.data.length === 0) {
         logger.info(
           `No match for ${
-            username ? `username: ${data.username}` : `email: ${data.email}`
+            data.username
+              ? `username: ${data.username}`
+              : `email: ${data.email}`
           }`
         );
         return res.json({
@@ -87,7 +81,17 @@ router.post("/login", (req, res, next) => {
         });
       }
 
-      logger.info(`Successful login for ${data.username}`);
+      if (!responseObject.validPassword) {
+        logger.info(`${data.password} was incorrect`);
+        return res.json({
+          error: true,
+          errorMessage: "Incorrect password",
+        });
+      }
+
+      logger.info(
+        `Successful login for ${data.username ? data.username : data.email}`
+      );
       return res.json({
         error: false,
         player: new Player(responseObject.data),

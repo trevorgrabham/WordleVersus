@@ -68,6 +68,7 @@ class PlayerTable {
       ]);
     }
     playerData = playerData.rows[0];
+    if (!playerData) return { data: [] };
     let validPassword = await bcrypt.compare(password, playerData.password);
     if (validPassword)
       return {
