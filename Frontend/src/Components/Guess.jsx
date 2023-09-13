@@ -1,10 +1,14 @@
 import React from 'react';
 
-function Guess({ word, letterCodes }) {
+function Guess({ children, letterCodes }) {
+  console.log(
+    `Rendering Guess component (word:${children}, letterCodes:[${letterCodes.join(
+      ', ',
+    )}])`,
+  );
   return (
     <div style={wordContainerStyle}>
-      {Array.from(word).map((letter, letterIndex) => {
-        console.log(`From the Guess Component, current letter is: ${letter}`);
+      {Array.from(children).map((letter, letterIndex) => {
         return (
           <div
             key={letterIndex}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import usePlayerStore from '../stores/playerStore';
+import useGameSettingStore from '../stores/gameSettingStore';
 import Error from '../Components/Error';
 
 const emptyFormData = () => ({
@@ -13,7 +14,9 @@ const emptyError = () => ({
 });
 
 function LoginPage() {
+  console.log(`Rendering LoginPage component`);
   const { setPlayer } = usePlayerStore();
+  const { setWordleLength } = useGameSettingStore();
   const [error, setError] = useState(emptyError());
   const [formData, setFormData] = useState(emptyFormData());
 
@@ -26,6 +29,8 @@ function LoginPage() {
   };
 
   async function handleSubmit(event) {
+    console.log(`Form submitted!`);
+
     event.preventDefault();
     // Check that all required fields are provided
     let keys = Object.keys(formData);
@@ -37,6 +42,7 @@ function LoginPage() {
           } is a required field`,
           target: keys[i],
         });
+        console.log(`${formData[key]} field is empty`);
         return;
       }
     }
@@ -47,7 +53,13 @@ function LoginPage() {
     if (formData.identifier.includes('@'))
       requestObject['email'] = formData.identifier;
     else requestObject['username'] = formData.identifier;
-    // GET request
+    console.log(
+      `Identifier is of type: ${requestObject.email ? 'email' : 'username'}`,
+    );
+    console.log(
+      `Attemping a POST request to http://127.0.0.1:8000/player/login`,
+    );
+    // POST request
     try {
       let response = await axios.post(
         'http://127.0.0.1:8000/player/login',
@@ -56,15 +68,25 @@ function LoginPage() {
       setError(
         response.data.error
           ? {
-              message: response.data.errorMessage,
+              message: response.data.message,
               target: 'global',
             }
           : emptyError(),
       );
-      if (response.data.error) return;
+      if (response.data.error) {
+        console.log(`Received error from database: ${response.data.message}`);
+        return;
+      }
+      console.log(
+        `Good response from database: (${Object.keys(response.data.player)
+          .map((key) => `${key}:${response.data.player[key]}`)
+          .join(', ')})`,
+      );
+      /* DEBUG ONLY */ setWordleLength(5);
       setPlayer(response.data.player);
       setFormData(emptyFormData());
     } catch (e) {
+      console.log(`Problem connecting to backend database`);
       setError({ message: e.message, target: 'global' });
     }
   }
