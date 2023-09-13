@@ -7,6 +7,8 @@ const usePlayerStore = create((set) => ({
   setPlayerId: (newPlayerId) => set({ playerId: newPlayerId }),
   setUsername: (newUsername) => set({ username: newUsername }),
   setEmail: (newEmail) => set({ email: newEmail }),
+  setPlayer: ({ newPlayerId, newUsername, newEmail }) =>
+    set({ playerId: newPlayerId, email: newEmail, username: newUsername }),
 }));
 
 export default usePlayerStore;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 function Guess({ word, letterCodes }) {
   return (
@@ -30,17 +30,5 @@ const letterContainerStyle = (letterCode) => ({
   backgroundColor:
     letterCode === 3 ? '#64ff64' : letterCode === 2 ? '#ffff55' : '#a8a8a8',
 });
-
-const notInWord = {
-  backgroundColor: '#a8a8a8',
-};
-
-const wrongSpot = {
-  backgroundColor: '#ffff55',
-};
-
-const correctSpot = {
-  backgroundColor: '#64ff64',
-};
 
 export default Guess;

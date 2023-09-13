@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import useGameSettingStore from '../stores/gameSettingStore';
 import Guess from '../Components/Guess';
 
@@ -14,19 +15,17 @@ function GamePage() {
   const [validGuess, setValidGuess] = useState(true);
   const [warnings, setWarnings] = useState([]);
 
-  useEffect(() => {
+  useEffect(async () => {
     console.log('Rendering GamePage');
-    fetch('/' + wordleLength.toString() + '-word-list.json')
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setWordleData(data);
-        setWordle(fetchWordle(data));
-      })
-      .catch((e) => {
-        console.error(`Problem fetching word list of length ${wordleLength}`);
-      });
+    try {
+      let wordListData = await axios.get(
+        '/WordLists/' + wordleLength.toString() + '-word-list.json',
+      );
+      setWordleData(wordListData.data);
+      setWordle(fetchWordle(wordListData.data));
+    } catch (e) {
+      console.error(`Problem fetching word list of length ${wordleLength}`);
+    }
   }, [wordleLength]);
 
   function fetchWordle(data) {
