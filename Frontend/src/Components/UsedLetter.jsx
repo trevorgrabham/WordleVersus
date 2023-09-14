@@ -1,6 +1,7 @@
 import React from 'react';
 
-function UsedLetter({ children, code }) {
+// Re-renders when the code is changed. Should not be changing the children, so this shouldn't trigger a re-render
+const UsedLetter = React.memo(({ children, code }) => {
   console.log(`Rendering UsedLetter component (${children}, ${code})`);
   const letterContainerStyle = {
     margin: '10px',
@@ -16,6 +17,6 @@ function UsedLetter({ children, code }) {
   };
 
   return <div style={letterContainerStyle}>{children}</div>;
-}
+});
 
 export default UsedLetter;

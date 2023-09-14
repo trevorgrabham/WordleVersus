@@ -1,6 +1,7 @@
 import React from 'react';
 
-function Guess({ children, letterCodes }) {
+// Re-renders when the letter codes or the text changes (Should not happen once it is set)
+const Guess = React.memo(({ children, letterCodes }) => {
   console.log(
     `Rendering Guess component (word:${children}, letterCodes:[${letterCodes.join(
       ', ',
@@ -20,7 +21,7 @@ function Guess({ children, letterCodes }) {
       })}
     </div>
   );
-}
+});
 
 const wordContainerStyle = {
   display: 'flex',

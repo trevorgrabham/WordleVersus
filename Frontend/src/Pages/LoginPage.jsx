@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import usePlayerStore from '../stores/playerStore';
-import useGameSettingStore from '../stores/gameSettingStore';
+import useGameSettingStore from '../stores/gameSettingsStore';
 import Error from '../Components/Error';
 
 const emptyFormData = () => ({

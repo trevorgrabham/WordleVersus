@@ -1,6 +1,7 @@
 import React from 'react';
 
-function Error({ children, fontSize }) {
+// Re-renders when children (error text) or fontSize changes
+const Error = React.memo(({ children, fontSize }) => {
   console.log(
     `Rendering Error component (children:${children}, fontSize:${fontSize})`,
   );
@@ -12,6 +13,6 @@ function Error({ children, fontSize }) {
   };
 
   return <div style={mainContainerStyle}>{children}</div>;
-}
+});
 
 export default Error;
