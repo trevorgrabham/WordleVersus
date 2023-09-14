@@ -3,6 +3,7 @@ import UsedLetter from './UsedLetter';
 import useGameDataStore from '../stores/gameDataStore';
 
 const UsedLetterGrid = React.memo(({}) => {
+  console.log('Rendering UsedLetterGrid component');
   const usedLetters = useGameDataStore((state) => state.usedLetters);
 
   return (

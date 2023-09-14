@@ -1,89 +1,130 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import axios from 'axios';
 import usePlayerStore from '../stores/playerStore';
 import Error from '../Components/Error';
-
-const defaultFormData = () => ({
-  username: '',
-  email: '',
-  password: '',
-  confirmPassword: '',
-});
-
-const emptyError = () => ({
-  message: '',
-  target: undefined,
-});
+import useErrorStore from '../stores/errorStore';
 
 function SignUpPage() {
-  const { setPlayer } = usePlayerStore();
-  const [formData, setFormData] = useState(defaultFormData());
+  const setPlayer = usePlayerStore((state) => state.setPlayer);
+  const [addError, clearErrors, signupTarget] = useErrorStore((state) => [
+    state.addError,
+    state.clearErrors,
+    state.signupTarget,
+  ]);
 
-  const [error, setError] = useState(emptyError());
-
-  useEffect(() => {
-    setError({ message: `Only for debugging`, target: 'global' });
-  }, []);
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setFormData((previousData) => ({
-      ...previousData,
-      [name]: value,
-    }));
-  };
+  const usernameRef = useRef('');
+  const emailRef = useRef('');
+  const passwordRef = useRef('');
+  const confirmPasswordRef = useRef('');
 
   const handleSubmit = async (event) => {
+    console.log('Form submitted');
     event.preventDefault();
-    // Check that passwords match
-    if (formData.password !== formData.confirmPassword) {
-      setError({
-        message: 'Password and confirm password do not match',
-        target: 'confirmPassword',
+
+    const username = usernameRef.current.value;
+    const email = emailRef.current.value;
+    const password = passwordRef.current.value;
+    const confirmPassword = confirmPasswordRef.current.value;
+
+    if (!username) {
+      addError({
+        message: 'Username field is required',
+        target: 'signupTarget',
+        component: 'username',
       });
+    } else {
+      if (signupTarget.length)
+        clearErrors({ target: 'signupTarget', component: 'username' });
+    }
+    if (!email) {
+      addError({
+        message: 'Email field is required',
+        target: 'signupTarget',
+        component: 'email',
+      });
+    } else {
+      if (signupTarget.length)
+        clearErrors({ target: 'signupTarget', component: 'email' });
+    }
+    if (!password) {
+      addError({
+        message: 'Password field is required',
+        target: 'signupTarget',
+        component: 'password',
+      });
+    } else {
+      if (signupTarget.length)
+        clearErrors({ target: 'signupTarget', component: 'password' });
+    }
+    if (!confirmPassword) {
+      addError({
+        message: 'Confirm Password field is required',
+        target: 'signupTarget',
+        component: 'confirmPassword',
+      });
+    } else {
+      if (signupTarget.length)
+        clearErrors({ target: 'signupTarget', component: 'confirmPassword' });
+    }
+    if (password !== confirmPassword) {
+      addError({
+        message: 'Passwords do not match',
+        target: 'signupTarget',
+        component: 'confirmPassword',
+      });
+      addError({
+        message: 'Passwords do not match',
+        target: 'signupTarget',
+        component: 'password',
+      });
+    }
+    if (
+      !username ||
+      !email ||
+      !password ||
+      !confirmPassword ||
+      password !== confirmPassword
+    )
       return;
-    }
-    // Check that all required fields are supplied
-    let keys = Object.keys(formData);
-    for (var i = 0; i < keys.length; ++i) {
-      if (!formData[keys[i]]) {
-        setError({
-          message: `${keys[i]} is a required field`,
-          target: keys[i],
-        });
-        return;
-      }
-    }
+
     // POST request
     try {
       const response = await axios.post('http://127.0.0.1:8000/player/signup', {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
+        username,
+        email,
+        password,
       });
       // If error occured, report it
       // Else clear errors
-      setError(
-        response.data.error
-          ? {
-              message: response.data.errorMessage,
-              target: 'global',
-            }
-          : emptyError(),
-      );
-      if (response.data.error) return;
+      if (response.data.error)
+        return addError({
+          message: response.data.message,
+          target: 'signupTarget',
+          component: 'global',
+        });
+      clearErrors({ target: 'signupTarget', component: 'global' });
       // Clear form and update playerStore
-      setFormData(defaultFormData());
       setPlayer(response.data.player);
     } catch (error) {
-      setError({ message: error.message, target: 'global' });
+      setError({
+        message: error.message,
+        target: 'signupTarget',
+        component: 'global',
+      });
     }
   };
 
+  function findError(componentTarget) {
+    for (var i = signupTarget.length - 1; i >= 0; --i) {
+      if (signupTarget[i].component === componentTarget)
+        return signupTarget[i].message;
+    }
+    return '';
+  }
+
   return (
     <div style={mainContainerStyle}>
-      {error.target && <Error>{error.message}</Error>}
+      {findError('global') && <Error>{findError('global')}</Error>}
       <form onSubmit={handleSubmit}>
         <div style={formContainerStyle}>
           <div style={inputFieldContainerStyle}>
@@ -92,43 +133,48 @@ function SignUpPage() {
               type="text"
               name="username"
               placeholder="Username"
-              value={formData.username}
-              onChange={handleChange}
+              ref={usernameRef}
             />
-            {error.target === 'username' && (
-              <Error fontSize={12}>{error.message}</Error>
-            )}
           </div>
+          {findError('username') && (
+            <Error fontSize="12">{findError('username')}</Error>
+          )}
           <div style={inputFieldContainerStyle}>
             <input
               style={inputStyle}
               type="text"
               name="email"
               placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
+              ref={emailRef}
             />
           </div>
+          {findError('email') && (
+            <Error fontSize="12">{findError('email')}</Error>
+          )}
           <div style={inputFieldContainerStyle}>
             <input
               style={inputStyle}
               type="password"
               name="password"
               placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
+              ref={passwordRef}
             />
           </div>
+          {findError('password') && (
+            <Error fontSize="12">{findError('password')}</Error>
+          )}
           <div style={inputFieldContainerStyle}>
             <input
               style={inputStyle}
               type="password"
               name="confirmPassword"
               placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
+              ref={confirmPasswordRef}
             />
           </div>
+          {findError('confirmPassword') && (
+            <Error fontSize="12">{findError('confirmPassword')}</Error>
+          )}
           <button style={formButtonStyle} type="submit">
             Sign Up
           </button>

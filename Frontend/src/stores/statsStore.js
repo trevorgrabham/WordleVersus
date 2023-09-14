@@ -6,7 +6,9 @@ const useStatsStore = create((set) => ({
   incNumGuessesTotal: () =>
     set((state) => ({ numGuessesTotal: state.numGuessesTotal + 1 })),
   incNumCorrectWordsGuessed: () =>
-    set(() => ({ numCorrectWordsGuessed: numCorrectWordsGuessed + 1 })),
+    set((state) => ({
+      numCorrectWordsGuessed: state.numCorrectWordsGuessed + 1,
+    })),
   resetStats: () =>
     set(() => ({ numGuessesTotal: 0, numCorrectWordsGuessed: 0 })),
 }));

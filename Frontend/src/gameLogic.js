@@ -33,8 +33,8 @@ export function fetchWordle({ data, blacklist }) {
       message: `data is empty`,
     };
   }
-  let index,
-    iterations = 0;
+  let index;
+  let iterations = 0;
   do {
     ++iterations;
     index = Math.floor(Math.random() * data.length);
@@ -72,14 +72,8 @@ export function compareGuess({
       console.log(`Skipping index ${i} because we already have a match there`);
       continue;
     }
-    /* DEBUG */ console.log(
-      `Searching for letter ${playersGuess[i]} in ${wordle}`,
-    );
     let letterIndex = wordle.indexOf(playersGuess[i]);
     if (letterIndex !== -1) {
-      /* DEBUG */ console.log(
-        `Found letter ${playersGuess[i]} at index ${letterIndex}. These should match ${playersGuess[i]} and ${wordle[letterIndex]}`,
-      );
       wordle = wordle.slice(0, letterIndex) + wordle.slice(letterIndex + 1);
       letterCodes[i] = 2;
     }

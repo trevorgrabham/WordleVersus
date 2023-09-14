@@ -7,6 +7,7 @@ const Guess = React.memo(({ children, letterCodes }) => {
       ', ',
     )}])`,
   );
+
   return (
     <div style={wordContainerStyle}>
       {Array.from(children).map((letter, letterIndex) => {

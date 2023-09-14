@@ -1,54 +1,64 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import useStatsStore from '../stores/statsStore';
 import useGameDataStore from '../stores/gameDataStore';
+import useErrorStore from '../stores/errorStore';
+import Error from './Error';
 
 const GuessInput = React.memo(() => {
   console.log(`Rendering GuessInput component`);
-  const [blacklist, wordList, addGuess, setError] = useGameDataStore(
-    (state) => [
-      state.blacklist,
-      state.wordList,
-      state.addGuess,
-      state.setError,
-    ],
-  );
-  console.log(
-    `GameStatStore values: {\nblacklist: [${blacklist.join(
-      ', ',
-    )}]\nwordList:[${wordList.slice(0, 100).join(', ')}]\n}`,
-  );
+  const [guessInputTarget, clearErrors, addError] = useErrorStore((state) => [
+    state.guessInputTarget,
+    state.clearErrors,
+    state.addError,
+  ]);
+  const [blacklist, wordList, addGuess] = useGameDataStore((state) => [
+    state.blacklist,
+    state.wordList,
+    state.addGuess,
+  ]);
+  const guessRef = useRef('');
   const incNumGuessesTotal = useStatsStore((state) => state.incNumGuessesTotal);
 
-  const [currentGuess, setCurrentGuess] = useState('');
+  function findError(componentTarget) {
+    for (var i = guessInputTarget.length - 1; i >= 0; --i) {
+      if (guessInputTarget[i].component === componentTarget)
+        return guessInputTarget[i].message;
+    }
+    return '';
+  }
 
   return (
-    <div style={inputContainerStyle}>
-      <input
-        style={inputStyle}
-        name="guess"
-        value={currentGuess}
-        onChange={({ target: { value } }) => setCurrentGuess(value)}
-        type="text"
-      />
-      <button
-        onClick={() => {
-          let submitResponse = submitGuess({
-            playersGuess: currentGuess,
-            addGuess,
-            wordList,
-            blacklist,
-          });
-          if (submitResponse.error)
-            return setError({
-              message: submitResponse.message,
-              target: 'guess',
+    <div style={mainContainerStyle}>
+      {findError('global') && <Error>{findError('global')}</Error>}
+      <div style={inputContainerStyle}>
+        <input style={inputStyle} type="text" name="guess" ref={guessRef} />
+        {findError('input') && (
+          <Error fontSize="14">{findError('input')}</Error>
+        )}
+        <button
+          onClick={() => {
+            clearErrors({ target: 'guessInputTarget', component: 'input' });
+            let submitResponse = submitGuess({
+              playersGuess: guessRef.current.value,
+              addGuess,
+              wordList,
+              blacklist,
             });
-          incNumGuessesTotal();
-          setCurrentGuess('');
-        }}
-      >
-        Guess
-      </button>
+            if (submitResponse.error) {
+              addError({
+                message: submitResponse.message,
+                target: 'guessInputTarget',
+                component: 'input',
+              });
+              return;
+            }
+            incNumGuessesTotal();
+            guessRef.current.value = '';
+          }}
+        >
+          Guess
+        </button>
+      </div>
     </div>
   );
 });
@@ -95,6 +105,8 @@ function validateGuess({ playersGuess, blacklist, wordList }) {
     error: false,
   };
 }
+
+const mainContainerStyle = {};
 
 const inputContainerStyle = {};
 

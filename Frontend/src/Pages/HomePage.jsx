@@ -3,7 +3,11 @@ import usePlayerStore from '../stores/playerStore';
 
 function HomePage() {
   console.log(`Rendering HomePage component`);
-  const { playerId, username, email } = usePlayerStore();
+  const [playerId, username, email] = usePlayerStore((state) => [
+    state.playerId,
+    state.username,
+    state.email,
+  ]);
 
   return (
     <div>

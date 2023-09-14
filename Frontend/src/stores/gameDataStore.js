@@ -1,11 +1,6 @@
 import { create } from 'zustand';
 import { compareGuess } from '../gameLogic';
 
-const emptyError = () => ({
-  message: '',
-  target: undefined,
-});
-
 const defaultLetters = () => {
   let letters = {};
   for (var i = 65; i < 91; ++i) {
@@ -21,7 +16,6 @@ const useGameDataStore = create((set) => ({
   gameState: '',
   guesses: [],
   usedLetters: defaultLetters(),
-  error: emptyError(),
   setWordle: (newWordle) => set(() => ({ wordle: newWordle })),
   addToBlacklist: (word) =>
     set((state) => ({ blacklist: [...state.blacklist, word] })),
@@ -54,7 +48,6 @@ const useGameDataStore = create((set) => ({
           ? { ...state.usedLetters, [key.toUpperCase()]: newCode }
           : state.usedLetters,
     })),
-  setError: (e) => set(() => ({ error: e })),
   clearGameData: () =>
     set(() => ({
       wordle: '',
@@ -62,7 +55,6 @@ const useGameDataStore = create((set) => ({
       gameState: '',
       guesses: [],
       usedLetters: defaultLetters(),
-      error: emptyError(),
     })),
 }));
 
