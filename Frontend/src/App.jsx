@@ -3,23 +3,30 @@ import GamePage from './Pages/GamePage';
 import useGameSettingsStore from './stores/gameSettingsStore';
 import usePlayerStore from './stores/playerStore';
 import LoginPage from './Pages/LoginPage';
+import Socket from './Pages/Socket';
 
 function App() {
   console.log(`Rendering the App component`);
-  const setWordleLength = useGameSettingsStore(
-    (state) => state.setWordleLength,
-  );
-  const playerId = usePlayerStore((state) => state.playerId);
+  // const setWordleLength = useGameSettingsStore(
+  //   (state) => state.setWordleLength,
+  // );
+  // const playerId = usePlayerStore((state) => state.playerId);
 
-  useEffect(async () => {
-    setWordleLength(5);
-  }, []);
+  // useEffect(async () => {
+  //   setWordleLength(5);
+  // }, []);
+
+  // return (
+  //   <div>
+  //     {/* {!playerId && <SignUpPage />} */}
+  //     {!playerId && <LoginPage />}
+  //     {playerId && <GamePage />}
+  //   </div>
+  // );
 
   return (
     <div>
-      {/* {!playerId && <SignUpPage />} */}
-      {!playerId && <LoginPage />}
-      {playerId && <GamePage />}
+      <Socket />
     </div>
   );
 }

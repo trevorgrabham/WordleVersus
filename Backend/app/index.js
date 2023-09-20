@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
+const http = require("http");
 const errorHandler = require("express-error-handler");
+const initializeIO = require("./socket");
 const playerRouter = require("./api/player");
 const gameRouter = require("./api/game");
 const gameStatRouter = require("./api/gamestat");
@@ -19,4 +21,7 @@ app.use("/player", playerRouter);
 app.use("/game", gameRouter);
 app.use("/gamestat", gameStatRouter);
 
-module.exports = app;
+const server = http.createServer(app);
+const io = initializeIO(server);
+
+module.exports = { server, io };

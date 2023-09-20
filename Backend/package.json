@@ -19,6 +19,7 @@
     "express": "^4.18.2",
     "express-error-handler": "^1.1.0",
     "pg": "^8.11.3",
+    "socket.io": "^4.7.2",
     "winston": "^3.10.0"
   },
   "devDependencies": {
