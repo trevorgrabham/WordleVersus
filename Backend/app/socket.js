@@ -29,7 +29,7 @@ function initializeIO(server) {
           error: true,
           message: `Room with room code ${data.roomCode} does not exist. Did you mean to 'Create Room' instead?`,
         });
-      if (rooms[data.roomCode].length > 2)
+      if (rooms[data.roomCode].length >= 2)
         return callback({ error: `Room is already full` });
       rooms[data.roomCode].push(socket.id);
       socket.join(data.roomCode);
@@ -61,8 +61,25 @@ function initializeIO(server) {
     });
 
     socket.on("leaveRoom", (data) => {
+      console.log(
+        `${socket.id} is attempting to leave room ${
+          data.roomCode
+        } that has length ${rooms[data.roomCode].length}`
+      );
       socket.leave(data.roomCode);
+      if (rooms[data.roomCode].length <= 1) {
+        delete rooms[data.roomCode];
+      } else {
+        if (rooms[data.roomCode][0] === socket.id)
+          rooms[data.roomCode].splice(0, 1);
+        else rooms[data.roomCode].splice(1, 1);
+      }
       console.log(`${socket.id} has successfully left ${data.roomCode}`);
+      console.log(
+        rooms[data.roomCode]
+          ? `There is still ${rooms[data.roomCode][0]} left in the room`
+          : `The room is now empty and has been deleted`
+      );
     });
 
     socket.on("sendMessage", (data) => {

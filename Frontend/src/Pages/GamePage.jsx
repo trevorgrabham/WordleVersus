@@ -8,6 +8,7 @@ import { getWordList, fetchWordle } from '../gameLogic';
 import GuessList from '../Components/GuessList';
 import useGameDataStore from '../stores/gameDataStore';
 import useErrorStore from '../stores/errorStore';
+import socket from '../socket';
 
 function GamePage() {
   console.log(`Rendering GamePage component`);
@@ -16,7 +17,10 @@ function GamePage() {
     state.addError,
     state.getErrorMessage,
   ]);
-  const wordleLength = useGameSettingStore((state) => state.wordleLength);
+  const [wordleLength, roomCode] = useGameSettingStore((state) => [
+    state.wordleLength,
+    state.roomCode,
+  ]);
   const [wordle, setWordle, setWordList, blacklist] = useGameDataStore(
     (state) => [
       state.wordle,
@@ -60,11 +64,21 @@ function GamePage() {
       return;
     }
     setWordle(wordleResponse.data);
+  }, [wordleLength]);
+
+  useEffect(() => {
+    socket.on('connection', () => {
+      console.log('Connected to the web socket');
+    });
+
+    // TODO: fill this out with logic for when the other player guesses
+    socket.on('guessReceived', (data) => {});
 
     return () => {
-      // leave the room
+      socket.off('guessReceived');
+      socket.emit('leaveRoom', { roomCode });
     };
-  }, [wordleLength]);
+  });
 
   return (
     <div style={mainContainerStyle}>

@@ -1,21 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useErrorStore from '../stores/errorStore';
+import useGameSettingsStore from '../stores/gameSettingsStore';
 import Header from '../Components/Header';
 import Error from '../Components/Error';
 import socket from '../socket';
 
 function RoomPage() {
   console.log(`Rendering the RoomPage component`);
+  const navigate = useNavigate();
   const roomCodeInputRef = useRef('');
   const newRoomCodeInputRef = useRef('');
-  const [roomTarget, addError, clearErrors, getErrorMessage] = useErrorStore(
-    (state) => [
-      state.roomTarget,
-      state.addError,
-      state.clearErrors,
-      state.getErrorMessage,
-    ],
-  );
+  const setRoomCode = useGameSettingsStore((state) => state.setRoomCode);
+  const [addError, clearErrors, getErrorMessage] = useErrorStore((state) => [
+    state.addError,
+    state.clearErrors,
+    state.getErrorMessage,
+  ]);
 
   // TODO: use the cleanup function to clean up any socket.on connections we need
   useEffect(() => {
@@ -35,28 +36,24 @@ function RoomPage() {
       });
       return;
     }
-    socket.emit(
-      'joinRoom',
-      { roomCode: roomCodeInputRef.current.value },
-      (response) => {
-        if (response.error) {
-          addError({
-            target: 'roomTarget',
-            message: response.message,
-            component: 'joinRoom',
-          });
-          return;
-        }
-        console.log(
-          `Successfully connected to room ${roomCodeInputRef.current.value}`,
-        );
-        clearErrors({ target: 'roomTarget', component: 'joinRoom' });
-        roomCodeInputRef.current.value = '';
-        // set the roomCode in gameSettingStore
-        // navigate to /game/roomCode
+    let roomCode = roomCodeInputRef.current.value;
+    socket.emit('joinRoom', { roomCode: roomCode }, (response) => {
+      if (response.error) {
+        addError({
+          target: 'roomTarget',
+          message: response.message,
+          component: 'joinRoom',
+        });
         return;
-      },
-    );
+      }
+      console.log(`Successfully connected to room ${roomCode}`);
+      clearErrors({ target: 'roomTarget', component: 'joinRoom' });
+      clearErrors({ target: 'roomTarget', component: 'createRoom' });
+      roomCodeInputRef.current.value = '';
+      setRoomCode(roomCode);
+      navigate(`/game/${roomCode}`);
+      return;
+    });
   };
 
   const createRoom = () => {
@@ -68,28 +65,24 @@ function RoomPage() {
       });
       return;
     }
-    socket.emit(
-      'createRoom',
-      { roomCode: newRoomCodeInputRef.current.value },
-      (response) => {
-        if (response.error) {
-          addError({
-            target: 'roomTarget',
-            message: response.message,
-            component: 'createRoom',
-          });
-          return;
-        }
-        console.log(
-          `Successfully connected to room ${newRoomCodeInputRef.current.value}`,
-        );
-        clearErrors({ target: 'roomTarget', component: 'createRoom' });
-        newRoomCodeInputRef.current.value = '';
-        // set the roomCode in gameSettingStore
-        // navigate to /game/roomCode
+    let roomCode = newRoomCodeInputRef.current.value;
+    socket.emit('createRoom', { roomCode: roomCode }, (response) => {
+      if (response.error) {
+        addError({
+          target: 'roomTarget',
+          message: response.message,
+          component: 'createRoom',
+        });
         return;
-      },
-    );
+      }
+      console.log(`Successfully connected to room ${roomCode}`);
+      clearErrors({ target: 'roomTarget', component: 'createRoom' });
+      clearErrors({ target: 'roomTarget', component: 'joinRoom' });
+      newRoomCodeInputRef.current.value = '';
+      setRoomCode(roomCode);
+      navigate(`/game/${roomCode}`);
+      return;
+    });
   };
   return (
     <div>
