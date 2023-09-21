@@ -1,6 +1,6 @@
 const socketIO = require("socket.io");
 
-let numPeopleOnPage = 0;
+let rooms = {};
 
 function initializeIO(server) {
   const io = socketIO(server, {
@@ -13,10 +13,56 @@ function initializeIO(server) {
 
   io.on("connection", (socket) => {
     console.log(`Socket connected: ${socket.id}`);
-    console.log(`${++numPeopleOnPage} are currently on the page`);
     socket.on("message", (data) => {
       console.log(data);
       socket.broadcast.emit("receivedMessage", data);
+    });
+
+    socket.on("joinRoom", (data, callback) => {
+      if (!data.roomCode)
+        return callback({
+          error: true,
+          message: "Room code is a required field",
+        });
+      if (!rooms[data.roomCode])
+        return callback({
+          error: true,
+          message: `Room with room code ${data.roomCode} does not exist. Did you mean to 'Create Room' instead?`,
+        });
+      if (room[data.roomCode].length > 2)
+        return callback({ error: `Room is already full` });
+      room[data.roomCode].push(socket.id);
+      socket.join(data.roomCode);
+      console.log(`${socket.id} successfully joined room ${data.roomCode}`);
+      return callback({
+        error: false,
+        message: `Successfully joined room ${data.roomCode}`,
+      });
+    });
+
+    socket.on("createRoom", (data, callback) => {
+      if (!data)
+        return callback({
+          error: true,
+          message: `Room code is a required field`,
+        });
+      if (rooms[data.roomCode])
+        return callback({
+          error: true,
+          message: `Room ${data.roomCode} already exists. Did you mean to 'Join Room' instead?`,
+        });
+      rooms[data.roomCode] = [socket.id];
+      socket.join(data.roomCode);
+      console.log(`${socket.id} successfully created room ${data.roomCode}`);
+      return callback({
+        error: false,
+        message: `Successfully created room ${data.roomCode}`,
+      });
+    });
+
+    socket.on("leaveRoom", (data) => {
+      socket.leave(data.roomCode);
+      console.log(`${socket.id} has successfully left ${data.roomCode}`);
     });
 
     socket.on("sendMessage", (data) => {
@@ -26,7 +72,6 @@ function initializeIO(server) {
 
     socket.on("disconnect", () => {
       console.log(`Socket disconnected: ${socket.id}`);
-      console.log(`There are now ${--numPeopleOnPage} people left on the page`);
     });
   });
 
