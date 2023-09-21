@@ -29,9 +29,9 @@ function initializeIO(server) {
           error: true,
           message: `Room with room code ${data.roomCode} does not exist. Did you mean to 'Create Room' instead?`,
         });
-      if (room[data.roomCode].length > 2)
+      if (rooms[data.roomCode].length > 2)
         return callback({ error: `Room is already full` });
-      room[data.roomCode].push(socket.id);
+      rooms[data.roomCode].push(socket.id);
       socket.join(data.roomCode);
       console.log(`${socket.id} successfully joined room ${data.roomCode}`);
       return callback({

@@ -3,16 +3,20 @@ import axios from 'axios';
 import usePlayerStore from '../stores/playerStore';
 import useErrorStore from '../stores/errorStore';
 import Error from '../Components/Error';
+import Header from '../Components/Header';
 
 function LoginPage() {
   const identifierRef = useRef('');
   const passwordRef = useRef('');
   const setPlayer = usePlayerStore((state) => state.setPlayer);
-  const [addError, clearErrors, loginTarget] = useErrorStore((state) => [
-    state.addError,
-    state.clearErrors,
-    state.loginTarget,
-  ]);
+  const [addError, clearErrors, loginTarget, getErrorMessage] = useErrorStore(
+    (state) => [
+      state.addError,
+      state.clearErrors,
+      state.loginTarget,
+      state.getErrorMessage,
+    ],
+  );
 
   console.log(`Rendering LoginPage component`);
 
@@ -83,17 +87,14 @@ function LoginPage() {
     }
   }
 
-  function findError(componentTarget) {
-    for (var i = loginTarget.length - 1; i >= 0; --i) {
-      if (loginTarget[i].component === componentTarget)
-        return loginTarget[i].message;
-    }
-    return '';
-  }
-
   return (
     <div style={mainContainerStyle}>
-      {findError('global') && <Error>{findError('global')}</Error>}
+      <Header />
+      {getErrorMessage({ target: 'loginTarget', component: 'global' }) && (
+        <Error>
+          {getErrorMessage({ target: 'loginTarget', component: 'global' })}
+        </Error>
+      )}
       <form onSubmit={handleSubmit}>
         <div style={formContainerStyle}>
           <div style={inputFieldContainerStyle}>
@@ -104,8 +105,16 @@ function LoginPage() {
               ref={identifierRef}
               placeholder="Username or Email"
             />
-            {findError('identifier') && (
-              <Error fontSize="12">{findError('identifier')}</Error>
+            {getErrorMessage({
+              target: 'loginTarget',
+              component: 'identifier',
+            }) && (
+              <Error fontSize="12">
+                {getErrorMessage({
+                  target: 'loginTarget',
+                  component: 'identifier',
+                })}
+              </Error>
             )}
           </div>
           <div style={inputFieldContainerStyle}>
@@ -116,8 +125,16 @@ function LoginPage() {
               ref={passwordRef}
               placeholder="Password"
             />
-            {findError('password') && (
-              <Error fontSize="12">{findError('password')}</Error>
+            {getErrorMessage({
+              target: 'loginTarget',
+              component: 'password',
+            }) && (
+              <Error fontSize="12">
+                {getErrorMessage({
+                  target: 'loginTarget',
+                  component: 'password',
+                })}
+              </Error>
             )}
           </div>
           <button style={formButtonStyle} type="submit">

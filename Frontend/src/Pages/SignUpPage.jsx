@@ -6,11 +6,14 @@ import useErrorStore from '../stores/errorStore';
 
 function SignUpPage() {
   const setPlayer = usePlayerStore((state) => state.setPlayer);
-  const [addError, clearErrors, signupTarget] = useErrorStore((state) => [
-    state.addError,
-    state.clearErrors,
-    state.signupTarget,
-  ]);
+  const [addError, clearErrors, signupTarget, getErrorMessage] = useErrorStore(
+    (state) => [
+      state.addError,
+      state.clearErrors,
+      state.signupTarget,
+      state.getErrorMessage,
+    ],
+  );
 
   const usernameRef = useRef('');
   const emailRef = useRef('');
@@ -114,17 +117,13 @@ function SignUpPage() {
     }
   };
 
-  function findError(componentTarget) {
-    for (var i = signupTarget.length - 1; i >= 0; --i) {
-      if (signupTarget[i].component === componentTarget)
-        return signupTarget[i].message;
-    }
-    return '';
-  }
-
   return (
     <div style={mainContainerStyle}>
-      {findError('global') && <Error>{findError('global')}</Error>}
+      {getErrorMessage({ target: 'signupTarget', component: 'global' }) && (
+        <Error>
+          {getErrorMessage({ target: 'signupTarget', component: 'global' })}
+        </Error>
+      )}
       <form onSubmit={handleSubmit}>
         <div style={formContainerStyle}>
           <div style={inputFieldContainerStyle}>
@@ -136,8 +135,16 @@ function SignUpPage() {
               ref={usernameRef}
             />
           </div>
-          {findError('username') && (
-            <Error fontSize="12">{findError('username')}</Error>
+          {getErrorMessage({
+            target: 'signupTarget',
+            component: 'username',
+          }) && (
+            <Error fontSize="12">
+              {getErrorMessage({
+                target: 'signupTarget',
+                component: 'username',
+              })}
+            </Error>
           )}
           <div style={inputFieldContainerStyle}>
             <input
@@ -148,8 +155,10 @@ function SignUpPage() {
               ref={emailRef}
             />
           </div>
-          {findError('email') && (
-            <Error fontSize="12">{findError('email')}</Error>
+          {getErrorMessage({ target: 'signupTarget', component: 'email' }) && (
+            <Error fontSize="12">
+              {getErrorMessage({ target: 'signupTarget', component: 'email' })}
+            </Error>
           )}
           <div style={inputFieldContainerStyle}>
             <input
@@ -160,8 +169,16 @@ function SignUpPage() {
               ref={passwordRef}
             />
           </div>
-          {findError('password') && (
-            <Error fontSize="12">{findError('password')}</Error>
+          {getErrorMessage({
+            target: 'signupTarget',
+            component: 'password',
+          }) && (
+            <Error fontSize="12">
+              {getErrorMessage({
+                target: 'signupTarget',
+                component: 'password',
+              })}
+            </Error>
           )}
           <div style={inputFieldContainerStyle}>
             <input
@@ -172,8 +189,16 @@ function SignUpPage() {
               ref={confirmPasswordRef}
             />
           </div>
-          {findError('confirmPassword') && (
-            <Error fontSize="12">{findError('confirmPassword')}</Error>
+          {getErrorMessage({
+            target: 'signupTarget',
+            component: 'confirmPassword',
+          }) && (
+            <Error fontSize="12">
+              {getErrorMessage({
+                target: 'signupTarget',
+                component: 'confirmPassword',
+              })}
+            </Error>
           )}
           <button style={formButtonStyle} type="submit">
             Sign Up

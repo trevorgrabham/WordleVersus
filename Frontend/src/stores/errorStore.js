@@ -14,6 +14,7 @@ const useErrorStore = create((set) => ({
   guessInputTarget: [],
   guessListTarget: [],
   gamePageTarget: [],
+  roomTarget: [],
   addError: (newError) =>
     set((state) => ({
       ...state,
@@ -25,6 +26,14 @@ const useErrorStore = create((set) => ({
         },
       ],
     })),
+  getErrorMessage: ({ target, component }) => {
+    const state = useErrorStore.getState();
+    for (var i = state[target].length - 1; i >= 0; --i) {
+      if (state[target][i].component === component)
+        return state[target][i].message;
+    }
+    return '';
+  },
   clearErrors: ({ target, component }) =>
     set((state) => {
       let targetErrors = state[target];

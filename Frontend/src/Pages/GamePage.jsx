@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import useGameSettingStore from '../stores/gameSettingsStore';
 import Error from '../Components/Error';
+import Header from '../Components/Header';
 import UsedLetterGrid from '../Components/UsedLetterGrid';
 import GuessInput from '../Components/GuessInput';
 import { getWordList, fetchWordle } from '../gameLogic';
@@ -10,21 +11,24 @@ import useErrorStore from '../stores/errorStore';
 
 function GamePage() {
   console.log(`Rendering GamePage component`);
-  const [gamePageTarget, addError] = useErrorStore((state) => [
+  const [gamePageTarget, addError, getErrorMessage] = useErrorStore((state) => [
     state.gamePageTarget,
     state.addError,
+    state.getErrorMessage,
   ]);
   const wordleLength = useGameSettingStore((state) => state.wordleLength);
-  const [wordle, setWordle, usedLetters, setWordList, blacklist] =
-    useGameDataStore((state) => [
+  const [wordle, setWordle, setWordList, blacklist] = useGameDataStore(
+    (state) => [
       state.wordle,
       state.setWordle,
-      state.usedLetters,
       state.setWordList,
       state.blacklist,
-    ]);
+    ],
+  );
 
   // TODO: Maybe think about retrying to GET request on error, depedning on the error
+  // TODO: socket.emit('leaveRoom') when the component unmounts
+  // TODO: set up the socket.on events for connecting, and recieving guesses from the other player
   useEffect(async () => {
     if (!wordleLength) return;
     console.log(
@@ -56,26 +60,25 @@ function GamePage() {
       return;
     }
     setWordle(wordleResponse.data);
-  }, [wordleLength]);
 
-  function findError(componentTarget) {
-    for (var i = gamePageTarget.length - 1; i >= 0; --i) {
-      if (gamePageTarget[i].component === componentTarget)
-        return gamePageTarget[i].message;
-    }
-    return '';
-  }
+    return () => {
+      // leave the room
+    };
+  }, [wordleLength]);
 
   return (
     <div style={mainContainerStyle}>
+      <Header />
       <div style={headerContainerStyle}>
         <div style={wordleContainerStyle}>{wordle}</div>
         <div style={usedLetterContainerStyle}>
           <UsedLetterGrid />
         </div>
       </div>
-      {findError('global') && (
-        <Error fontSize="12">{findError('global')}</Error>
+      {getErrorMessage({ target: 'gamePageTarget', component: 'global' }) && (
+        <Error fontSize="12">
+          {getErrorMessage({ target: 'gamePageTarget', component: 'global' })}
+        </Error>
       )}
       <GuessList />
       <GuessInput />
