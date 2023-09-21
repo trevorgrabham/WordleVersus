@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import usePlayerStore from '../stores/playerStore';
 import useErrorStore from '../stores/errorStore';
@@ -6,6 +7,7 @@ import Error from '../Components/Error';
 import Header from '../Components/Header';
 
 function LoginPage() {
+  const navigate = useNavigate();
   const identifierRef = useRef('');
   const passwordRef = useRef('');
   const setPlayer = usePlayerStore((state) => state.setPlayer);
@@ -77,6 +79,7 @@ function LoginPage() {
       );
       // If we caused an error, we should have fixed it by this point
       setPlayer(response.data.player);
+      navigate('/', { replace: true });
     } catch (e) {
       console.log(`Problem connecting to backend database`);
       addError({

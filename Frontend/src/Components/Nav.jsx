@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from '../Styles/Nav.module.css';
 
 function Nav({ children }) {
@@ -8,9 +9,9 @@ function Nav({ children }) {
         {children.map((navItem, index) => {
           return (
             <li className={styles.listItem} key={index}>
-              <a className={styles.navLink} href={navItem.link}>
+              <Link className={styles.navLink} to={navItem.link}>
                 <div className={styles.navText}>{navItem.text}</div>
-              </a>
+              </Link>
             </li>
           );
         })}

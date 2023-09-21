@@ -1,10 +1,13 @@
 import React, { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import usePlayerStore from '../stores/playerStore';
 import Error from '../Components/Error';
+import Header from '../Components/Header';
+import usePlayerStore from '../stores/playerStore';
 import useErrorStore from '../stores/errorStore';
 
 function SignUpPage() {
+  const navigate = useNavigate();
   const setPlayer = usePlayerStore((state) => state.setPlayer);
   const [addError, clearErrors, signupTarget, getErrorMessage] = useErrorStore(
     (state) => [
@@ -20,15 +23,7 @@ function SignUpPage() {
   const passwordRef = useRef('');
   const confirmPasswordRef = useRef('');
 
-  const handleSubmit = async (event) => {
-    console.log('Form submitted');
-    event.preventDefault();
-
-    const username = usernameRef.current.value;
-    const email = emailRef.current.value;
-    const password = passwordRef.current.value;
-    const confirmPassword = confirmPasswordRef.current.value;
-
+  const checkEmptyFields = ({ username, email, password, confirmPassword }) => {
     if (!username) {
       addError({
         message: 'Username field is required',
@@ -81,6 +76,19 @@ function SignUpPage() {
         component: 'password',
       });
     }
+  };
+
+  const handleSubmit = async (event) => {
+    console.log('Form submitted');
+    event.preventDefault();
+
+    const username = usernameRef.current.value;
+    const email = emailRef.current.value;
+    const password = passwordRef.current.value;
+    const confirmPassword = confirmPasswordRef.current.value;
+
+    checkEmptyFields({ username, email, password, confirmPassword });
+
     if (
       !username ||
       !email ||
@@ -108,6 +116,7 @@ function SignUpPage() {
       clearErrors({ target: 'signupTarget', component: 'global' });
       // Clear form and update playerStore
       setPlayer(response.data.player);
+      navigate('/', { replace: true });
     } catch (error) {
       setError({
         message: error.message,
@@ -119,6 +128,7 @@ function SignUpPage() {
 
   return (
     <div style={mainContainerStyle}>
+      <Header />
       {getErrorMessage({ target: 'signupTarget', component: 'global' }) && (
         <Error>
           {getErrorMessage({ target: 'signupTarget', component: 'global' })}

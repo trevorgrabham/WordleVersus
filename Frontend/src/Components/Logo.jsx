@@ -1,12 +1,13 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from '../Styles/Logo.module.css';
 
 function Logo() {
   return (
     <div className={styles.logoContainer}>
-      <a className={styles.linkContainer} href="/">
+      <Link className={styles.linkContainer} to="/">
         <div className={styles.linkText}>WordleVersus</div>
-      </a>
+      </Link>
     </div>
   );
 }
