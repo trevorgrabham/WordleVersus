@@ -1,0 +1,29 @@
+.logoContainer {
+  width: 100%;
+  height: 100%;
+  border-bottom: 2px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.linkContainer {
+  text-decoration: none;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.linkText {
+  color: black;
+}
+
+.logoContainer:hover {
+  background-color: black;
+}
+
+.logoContainer:hover .linkText {
+  color: white;
+}

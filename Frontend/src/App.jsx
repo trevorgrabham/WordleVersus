@@ -1,33 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './Pages/HomePage';
 import GamePage from './Pages/GamePage';
-import useGameSettingsStore from './stores/gameSettingsStore';
-import usePlayerStore from './stores/playerStore';
 import LoginPage from './Pages/LoginPage';
-import Socket from './Pages/Socket';
+import SignUpPage from './Pages/SignUpPage';
+import RoomPage from './Pages/RoomPage';
 
 function App() {
   console.log(`Rendering the App component`);
-  // const setWordleLength = useGameSettingsStore(
-  //   (state) => state.setWordleLength,
-  // );
-  // const playerId = usePlayerStore((state) => state.playerId);
-
-  // useEffect(async () => {
-  //   setWordleLength(5);
-  // }, []);
-
-  // return (
-  //   <div>
-  //     {/* {!playerId && <SignUpPage />} */}
-  //     {!playerId && <LoginPage />}
-  //     {playerId && <GamePage />}
-  //   </div>
-  // );
-
   return (
-    <div>
-      <Socket />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" exact element={<HomePage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/room" element={<RoomPage />} />
+        // TODO: protect the game route and add a parameter to the route to get
+        the roomCode
+        <Route path="/game" element={<GamePage />} />
+      </Routes>
+    </Router>
   );
 }
 

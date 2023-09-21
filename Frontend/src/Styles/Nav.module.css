@@ -1,0 +1,45 @@
+.navContainer {
+  width: 100%;
+  height: 100%;
+  border-bottom: 2px solid black;
+}
+
+.listContainer {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.listItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  border-left: 2px solid black;
+}
+
+.listItem:hover {
+  background-color: black;
+}
+
+.listItem:hover .navText {
+  color: white;
+}
+
+.navLink {
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navText {
+  color: black;
+}

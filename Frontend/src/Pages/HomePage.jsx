@@ -1,23 +1,10 @@
 import React from 'react';
-import usePlayerStore from '../stores/playerStore';
+import Header from '../Components/Header';
 
 function HomePage() {
   console.log(`Rendering HomePage component`);
-  const [playerId, username, email] = usePlayerStore((state) => [
-    state.playerId,
-    state.username,
-    state.email,
-  ]);
 
-  return (
-    <div>
-      <div>
-        <h1>PlayerId: {playerId || 'Empty'}</h1>
-        <h1>Username: {username || 'Empty'}</h1>
-        <h1>Email: {email || 'Empty'}</h1>
-      </div>
-    </div>
-  );
+  return <Header />;
 }
 
 export default HomePage;
