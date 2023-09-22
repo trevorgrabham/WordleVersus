@@ -1,19 +1,30 @@
 import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import useGameSettingStore from '../stores/gameSettingsStore';
 import Error from '../Components/Error';
-import Header from '../Components/Header';
 import UsedLetterGrid from '../Components/UsedLetterGrid';
 import GuessInput from '../Components/GuessInput';
 import { getWordList, fetchWordle } from '../gameLogic';
 import GuessList from '../Components/GuessList';
 import useGameDataStore from '../stores/gameDataStore';
 import useErrorStore from '../stores/errorStore';
-import socket from '../socket';
 
-function GamePage() {
+/*
+  Responsibilities - Display the game being played. Send game update messages to the socket server and receive messages back.
+
+  External Data Needed - socket: passed down as a prop from the main app.jsx component. 
+                         gameSettingsStore: needed to set up the game with the proper settings.
+                         gameDataStore: needed to share the game data with the components that are present on the page //TODO:(Should consider deleting the store and using props instead for simplicity) Do we need to send any of the game data back up to the GamePage? if not then should probably remove
+
+  Data Set - wordList: passed down to child components.
+             blacklist: passed down to child components.
+             wordle: passed down to child components.
+
+  Goes to - Potentially a DisplayStatsPage if I decide to make one, otherwise N/A 
+*/
+function GamePage({ socket }) {
   console.log(`Rendering GamePage component`);
-  const [gamePageTarget, addError, getErrorMessage] = useErrorStore((state) => [
-    state.gamePageTarget,
+  const [addError, getErrorMessage] = useErrorStore((state) => [
     state.addError,
     state.getErrorMessage,
   ]);
@@ -31,7 +42,6 @@ function GamePage() {
   );
 
   // TODO: Maybe think about retrying to GET request on error, depedning on the error
-  // TODO: socket.emit('leaveRoom') when the component unmounts
   // TODO: set up the socket.on events for connecting, and recieving guesses from the other player
   useEffect(async () => {
     if (!wordleLength) return;
@@ -67,10 +77,6 @@ function GamePage() {
   }, [wordleLength]);
 
   useEffect(() => {
-    socket.on('connection', () => {
-      console.log('Connected to the web socket');
-    });
-
     // TODO: fill this out with logic for when the other player guesses
     socket.on('guessReceived', (data) => {});
 
@@ -82,7 +88,6 @@ function GamePage() {
 
   return (
     <div style={mainContainerStyle}>
-      <Header />
       <div style={headerContainerStyle}>
         <div style={wordleContainerStyle}>{wordle}</div>
         <div style={usedLetterContainerStyle}>

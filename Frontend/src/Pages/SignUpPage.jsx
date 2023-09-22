@@ -2,21 +2,24 @@ import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Error from '../Components/Error';
-import Header from '../Components/Header';
 import usePlayerStore from '../stores/playerStore';
 import useErrorStore from '../stores/errorStore';
 
+/*
+  Responsibilites - Add a player to the backend database and log them in
+  External data needed - playerStore: need to be able to set the playerStore to log the user in.
+                         errorStore: need to be able to set and display Errors coming from user input or the database.
+  Data set - playerStore: need to update the playerStore to log the new player in
+  Goes to - Home Page upon a successful sign up
+*/
 function SignUpPage() {
   const navigate = useNavigate();
   const setPlayer = usePlayerStore((state) => state.setPlayer);
-  const [addError, clearErrors, signupTarget, getErrorMessage] = useErrorStore(
-    (state) => [
-      state.addError,
-      state.clearErrors,
-      state.signupTarget,
-      state.getErrorMessage,
-    ],
-  );
+  const [addError, clearErrors, getErrorMessage] = useErrorStore((state) => [
+    state.addError,
+    state.clearErrors,
+    state.getErrorMessage,
+  ]);
 
   const usernameRef = useRef('');
   const emailRef = useRef('');
@@ -31,8 +34,7 @@ function SignUpPage() {
         component: 'username',
       });
     } else {
-      if (signupTarget.length)
-        clearErrors({ target: 'signupTarget', component: 'username' });
+      clearErrors({ target: 'signupTarget', component: 'username' });
     }
     if (!email) {
       addError({
@@ -41,8 +43,7 @@ function SignUpPage() {
         component: 'email',
       });
     } else {
-      if (signupTarget.length)
-        clearErrors({ target: 'signupTarget', component: 'email' });
+      clearErrors({ target: 'signupTarget', component: 'email' });
     }
     if (!password) {
       addError({
@@ -51,8 +52,7 @@ function SignUpPage() {
         component: 'password',
       });
     } else {
-      if (signupTarget.length)
-        clearErrors({ target: 'signupTarget', component: 'password' });
+      clearErrors({ target: 'signupTarget', component: 'password' });
     }
     if (!confirmPassword) {
       addError({
@@ -61,8 +61,7 @@ function SignUpPage() {
         component: 'confirmPassword',
       });
     } else {
-      if (signupTarget.length)
-        clearErrors({ target: 'signupTarget', component: 'confirmPassword' });
+      clearErrors({ target: 'signupTarget', component: 'confirmPassword' });
     }
     if (password !== confirmPassword) {
       addError({
@@ -128,7 +127,6 @@ function SignUpPage() {
 
   return (
     <div style={mainContainerStyle}>
-      <Header />
       {getErrorMessage({ target: 'signupTarget', component: 'global' }) && (
         <Error>
           {getErrorMessage({ target: 'signupTarget', component: 'global' })}

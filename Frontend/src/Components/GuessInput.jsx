@@ -6,8 +6,8 @@ import Error from './Error';
 
 const GuessInput = React.memo(() => {
   console.log(`Rendering GuessInput component`);
-  const [guessInputTarget, clearErrors, addError] = useErrorStore((state) => [
-    state.guessInputTarget,
+  const [getErrorMessage, clearErrors, addError] = useErrorStore((state) => [
+    state.getErrorMessage,
     state.clearErrors,
     state.addError,
   ]);
@@ -19,21 +19,25 @@ const GuessInput = React.memo(() => {
   const guessRef = useRef('');
   const incNumGuessesTotal = useStatsStore((state) => state.incNumGuessesTotal);
 
-  function findError(componentTarget) {
-    for (var i = guessInputTarget.length - 1; i >= 0; --i) {
-      if (guessInputTarget[i].component === componentTarget)
-        return guessInputTarget[i].message;
-    }
-    return '';
-  }
-
   return (
     <div style={mainContainerStyle}>
-      {findError('global') && <Error>{findError('global')}</Error>}
+      {getErrorMessage({ target: 'guessInputTarget', component: 'global' }) && (
+        <Error>
+          {getErrorMessage({ target: 'guessInputTarget', component: 'global' })}
+        </Error>
+      )}
       <div style={inputContainerStyle}>
         <input style={inputStyle} type="text" name="guess" ref={guessRef} />
-        {findError('input') && (
-          <Error fontSize="14">{findError('input')}</Error>
+        {getErrorMessage({
+          target: 'guessInputTarget',
+          component: 'input',
+        }) && (
+          <Error fontSize="12">
+            {getErrorMessage({
+              target: 'guessInputTarget',
+              component: 'input',
+            })}
+          </Error>
         )}
         <button
           onClick={() => {

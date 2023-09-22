@@ -4,21 +4,27 @@ import axios from 'axios';
 import usePlayerStore from '../stores/playerStore';
 import useErrorStore from '../stores/errorStore';
 import Error from '../Components/Error';
-import Header from '../Components/Header';
 
+/*
+  Responsibilities - Gather the player information and logs them in
+
+  External Data Needed - playerStore: need to be able to update the playerStore to log the player in.
+                         errorStore: need to be able to set and get Errors that are from user input or the database.
+
+  Data Set - playerStore: update the playerStore to log the user in.
+
+  Goes To - HomePage on a successful login
+*/
 function LoginPage() {
+  const setPlayer = usePlayerStore((state) => state.setPlayer);
+  const [addError, clearErrors, getErrorMessage] = useErrorStore((state) => [
+    state.addError,
+    state.clearErrors,
+    state.getErrorMessage,
+  ]);
   const navigate = useNavigate();
   const identifierRef = useRef('');
   const passwordRef = useRef('');
-  const setPlayer = usePlayerStore((state) => state.setPlayer);
-  const [addError, clearErrors, loginTarget, getErrorMessage] = useErrorStore(
-    (state) => [
-      state.addError,
-      state.clearErrors,
-      state.loginTarget,
-      state.getErrorMessage,
-    ],
-  );
 
   console.log(`Rendering LoginPage component`);
 
@@ -36,8 +42,7 @@ function LoginPage() {
         component: 'password',
       });
     } else {
-      if (loginTarget.length > 0)
-        clearErrors({ target: 'loginTarget', component: 'password' });
+      clearErrors({ target: 'loginTarget', component: 'password' });
     }
     if (!identifier) {
       addError({
@@ -46,8 +51,7 @@ function LoginPage() {
         component: 'identifier',
       });
     } else {
-      if (loginTarget.length > 0)
-        clearErrors({ target: 'loginTarget', component: 'identifier' });
+      clearErrors({ target: 'loginTarget', component: 'identifier' });
     }
     if (!password || !identifier) return;
     let requestObject = {
@@ -70,8 +74,7 @@ function LoginPage() {
         console.log(`Received error from database: ${response.data.message}`);
         return;
       }
-      if (loginTarget.length > 0)
-        clearErrors({ target: 'loginTarget', component: 'global' });
+      clearErrors({ target: 'loginTarget', component: 'global' });
       console.log(
         `Good response from database: (${Object.keys(response.data.player)
           .map((key) => `${key}:${response.data.player[key]}`)
@@ -92,7 +95,6 @@ function LoginPage() {
 
   return (
     <div style={mainContainerStyle}>
-      <Header />
       {getErrorMessage({ target: 'loginTarget', component: 'global' }) && (
         <Error>
           {getErrorMessage({ target: 'loginTarget', component: 'global' })}
