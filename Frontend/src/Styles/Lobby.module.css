@@ -5,10 +5,12 @@
 
 .myMessage {
   background-color: aquamarine;
+  text-align: right;
 }
 
 .opponentMessage {
   background-color: magenta;
+  text-align: left;
 }
 
 .inputContainer {

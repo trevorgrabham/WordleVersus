@@ -20,6 +20,7 @@ function LobbyPage({ socket }) {
     });
 
     socket.on('opponentReady', () => {
+      if (imReady) return navigate(`/game/${roomCode}`);
       setOpponentReady(true);
       setMessages((state) => [
         ...state,
@@ -40,7 +41,7 @@ function LobbyPage({ socket }) {
       socket.off('opponentReady');
       socket.off('opponentUnready');
     };
-  }, []);
+  }, [imReady]);
 
   const sendMessage = () => {
     const myMessage = inputRef.current.value;

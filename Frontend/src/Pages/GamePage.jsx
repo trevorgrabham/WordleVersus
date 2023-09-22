@@ -82,7 +82,6 @@ function GamePage({ socket }) {
 
     return () => {
       socket.off('guessReceived');
-      socket.emit('leaveRoom', { roomCode });
     };
   });
 

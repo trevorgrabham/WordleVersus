@@ -67,7 +67,7 @@ function RoomPage({ socket }) {
       clearErrors({ target: 'roomTarget', component: 'createRoom' });
       roomCodeInputRef.current.value = '';
       setRoomCode(roomCode);
-      navigate(`/game/${roomCode}`);
+      navigate(`/lobby/${roomCode}`);
       return;
     });
   };
@@ -96,7 +96,7 @@ function RoomPage({ socket }) {
       clearErrors({ target: 'roomTarget', component: 'joinRoom' });
       newRoomCodeInputRef.current.value = '';
       setRoomCode(roomCode);
-      navigate(`/game/${roomCode}`);
+      navigate(`/lobby/${roomCode}`);
       return;
     });
   };
