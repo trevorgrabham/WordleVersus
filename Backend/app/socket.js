@@ -18,28 +18,7 @@ function initializeIO(server) {
       socket.broadcast.emit("receivedMessage", data);
     });
 
-    socket.on("joinRoom", (data, callback) => {
-      if (!data.roomCode)
-        return callback({
-          error: true,
-          message: "Room code is a required field",
-        });
-      if (!rooms[data.roomCode])
-        return callback({
-          error: true,
-          message: `Room with room code ${data.roomCode} does not exist. Did you mean to 'Create Room' instead?`,
-        });
-      if (rooms[data.roomCode].length >= 2)
-        return callback({ error: `Room is already full` });
-      rooms[data.roomCode].push(socket.id);
-      socket.join(data.roomCode);
-      console.log(`${socket.id} successfully joined room ${data.roomCode}`);
-      return callback({
-        error: false,
-        message: `Successfully joined room ${data.roomCode}`,
-      });
-    });
-
+    // -------------------------- Start game room events --------------------------
     socket.on("createRoom", (data, callback) => {
       if (!data)
         return callback({
@@ -60,7 +39,34 @@ function initializeIO(server) {
       });
     });
 
+    socket.on("joinRoom", (data, callback) => {
+      if (!data.roomCode)
+        return callback({
+          error: true,
+          message: "Room code is a required field",
+        });
+      if (!rooms[data.roomCode])
+        return callback({
+          error: true,
+          message: `Room with room code ${data.roomCode} does not exist. Did you mean to 'Create Room' instead?`,
+        });
+      if (rooms[data.roomCode].length >= 2)
+        return callback({ error: `Room is already full` });
+      rooms[data.roomCode].push(socket.id);
+      socket.join(data.roomCode);
+      socket.to(data.roomCode).emit("joinedRoom", { id: socket.id });
+      console.log(`${socket.id} successfully joined room ${data.roomCode}`);
+      return callback({
+        error: false,
+        message: `Successfully joined room ${data.roomCode}`,
+      });
+    });
+
     socket.on("leaveRoom", (data) => {
+      if (!rooms[data.roomCode])
+        return console.log(
+          `${socket.id} is attempting to leave a room that has already been deleted`
+        );
       console.log(
         `${socket.id} is attempting to leave room ${
           data.roomCode
@@ -81,11 +87,26 @@ function initializeIO(server) {
           : `The room is now empty and has been deleted`
       );
     });
+    // -------------------------- End game room events --------------------------
 
-    socket.on("sendMessage", (data) => {
+    // -------------------------- Start lobby events --------------------------
+    socket.on("messageSend", (data) => {
       console.log(`Received ${data.message} from ${socket.id}`);
-      socket.broadcast.emit("receivedMessage", data);
+      socket
+        .to(data.roomCode)
+        .emit("messageReceived", { message: data.message });
     });
+
+    socket.on("ready", (data) => {
+      console.log(`${socket.id} indicated that they are ready`);
+      socket.to(data.roomCode).emit("opponentReady");
+    });
+
+    socket.on("unready", (data) => {
+      console.log(`${socket.id} indicated that they are NOT ready`);
+      socket.to(data.roomCode).emit("opponentUnready");
+    });
+    // -------------------------- End lobby events --------------------------
 
     socket.on("disconnect", () => {
       console.log(`Socket disconnected: ${socket.id}`);
